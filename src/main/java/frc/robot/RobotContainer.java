@@ -21,7 +21,6 @@ public class RobotContainer {
     private final CommandXboxController controller0 = new CommandXboxController(0);
     private final CommandXboxController controller1 = new CommandXboxController(1);
 
-
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         // Configure the trigger bindings
