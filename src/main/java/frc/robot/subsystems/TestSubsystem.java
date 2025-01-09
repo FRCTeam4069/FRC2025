@@ -4,11 +4,33 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.SparkMax;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class TestSubsystem extends SubsystemBase {
+
+  SparkMax motor;
+
   /** Creates a new TestSubsystem. */
-  public TestSubsystem() {}
+  public TestSubsystem() {
+
+    motor = new SparkMax(0, SparkMax.MotorType.kBrushless);
+
+  }
+
+  public void setPower(double power) {
+    motor.set(power);
+  }
+
+  public double getPosition() {
+    // read encoder
+    return motor.getEncoder().getPosition();
+  }
+
+  public void stop(){
+    motor.stopMotor();
+  }
 
   @Override
   public void periodic() {
