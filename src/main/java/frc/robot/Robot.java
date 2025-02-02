@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import java.util.Map;
+
+import org.littletonrobotics.urcl.URCL;
+
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -26,7 +31,12 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
+
+        DataLogManager.start();
+        URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
+
     }
+
 
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
@@ -42,6 +52,7 @@ public class Robot extends TimedRobot {
         // commands, running already-scheduled commands, removing finished or interrupted commands,
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
+
         CommandScheduler.getInstance().run();
     }
 
@@ -57,14 +68,12 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void autonomousInit() {
-        /* 
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
         
         // schedule the autonomous command (example)
         if (m_autonomousCommand != null) {
-          m_autonomousCommand.schedule();
+            m_autonomousCommand.schedule();
         }
-        */
     }
 
     /** This function is called periodically during autonomous. */
@@ -88,13 +97,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        // Cancels all running commands at the start of test mode.
-        CommandScheduler.getInstance().cancelAll();
+
     }
 
     /** This function is called periodically during test mode. */
     @Override
-    public void testPeriodic() {}
+    public void testPeriodic() {
+
+    }
 
     /** This function is called once when the robot is first started up. */
     @Override

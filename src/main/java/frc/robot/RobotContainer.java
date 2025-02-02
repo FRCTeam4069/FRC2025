@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.TestSubsystem;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.subsystems.swerve.SwerveDrivetrain;
 
 // adding a comment for testing
 /**
@@ -20,17 +24,28 @@ import frc.robot.subsystems.TestSubsystem;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-
-    // The robot's subsystems and commands are defined here...
-
+    public static final SwerveDrivetrain drive = new SwerveDrivetrain();
  
-    // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController controller0 = new CommandXboxController(0);
     private final CommandXboxController controller1 = new CommandXboxController(1);
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
-        // Configure the trigger bindings
+        drive.setDefaultCommand(
+            drive.driveCommand(
+                () -> -controller0.getLeftY(),
+                () -> -controller0.getLeftX(),
+                () -> -controller0.getRightX()));
+        
+        autoChooser = AutoBuilder.buildAutoChooser();
+        autoChooser.addOption("quasistaticForward", drive.sysIdRoutine.quasistatic(Direction.kForward));
+        autoChooser.addOption("quasistaticReverse", drive.sysIdRoutine.quasistatic(Direction.kReverse));
+        autoChooser.addOption("dynamicForward", drive.sysIdRoutine.dynamic(Direction.kForward));
+        autoChooser.addOption("dynamicReverse", drive.sysIdRoutine.dynamic(Direction.kReverse));
+
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
         configureBindings();
     }
     
@@ -44,7 +59,7 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
      */
     private void configureBindings() {
-
+        controller0.a().onTrue(drive.resetHeadingCommand());
     }
 
     /**
@@ -52,12 +67,8 @@ public class RobotContainer {
      *
      * @return the command to run in autonomous
      */
-    /* 
     public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    //return Autos.exampleAuto(m_exampleSubsystem);
-    return new ExampleCommand(m_exampleSubsystem);
+        return autoChooser.getSelected();
     }
-    */
 }
 
