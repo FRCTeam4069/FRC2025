@@ -22,5 +22,9 @@ public final class DeviceIDs {
     public static final byte HORIZONTAL_EXTENSION = 7;
 
     public static final byte POWER_DISTRIBUTION_HUB = 40;
+
+    public static final int leftMotorPort = 1;
+
+    public static final int rightMotorPort = 2;
     
 }
