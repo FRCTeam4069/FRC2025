@@ -24,5 +24,9 @@ public final class DeviceIDs {
     public static final byte ARM_RIGHT = 9;
 
     public static final byte POWER_DISTRIBUTION_HUB = 40;
+
+    public static final int leftMotorPort = 1;
+
+    public static final int rightMotorPort = 2;
     
 }
