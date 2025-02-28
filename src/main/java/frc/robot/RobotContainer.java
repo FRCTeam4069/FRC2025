@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.ArmPIDCommand;
 import frc.robot.commands.FieldCentricDrive;
 import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.TestModule;
 import frc.robot.subsystems.TestSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
@@ -34,6 +35,7 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 public class RobotContainer {
     public static final SwerveDrivetrain drive = new SwerveDrivetrain();
     public static final Arm arm = new Arm();
+    public static final Elevator elevator = new Elevator();
     // public static final TestModule test = new TestModule();
  
     private final CommandXboxController controller0 = new CommandXboxController(0);
@@ -51,7 +53,9 @@ public class RobotContainer {
                 () -> controller0.y().getAsBoolean(),
                 () -> controller0.b().getAsBoolean()));
         
-        arm.setDefaultCommand(arm.driveCommand(() -> -controller1.getLeftY(), () -> -controller1.getRightY()));
+        //arm.setDefaultCommand(arm.driveCommand(() -> -controller1.getLeftY(), () -> -controller1.getRightY()));
+
+        elevator.setDefaultCommand(elevator.drive(() -> -controller1.getLeftY()));
         
         autoChooser = AutoBuilder.buildAutoChooser();
         // autoChooser.addOption("driveQuasistaticForward", drive.alignForward().andThen(drive.driveSysIdRoutine.quasistatic(Direction.kForward)));
@@ -83,14 +87,15 @@ public class RobotContainer {
     private void configureBindings() {
         controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
-        controller1.b().onTrue(new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0));
-        controller1.a().onTrue(new ArmPIDCommand(arm, 0.0*(Math.PI/180), 0));
-        controller1.x().onTrue(new ArmPIDCommand(arm, 90.0*(Math.PI/180), 0));
 
-        controller1.povRight().onTrue(new ArmPIDCommand(arm, 0.0, -180.0*(Math.PI/180)));
-        controller1.povDown().onTrue(new ArmPIDCommand(arm, 0.0, 0.0));
-        controller1.povLeft().onTrue(new ArmPIDCommand(arm, 0.0, 180.0*(Math.PI/180)));
-        controller1.povUp().onTrue(new ArmPIDCommand(arm, 0.0, 90.0*(Math.PI/180)));
+        // controller1.b().onTrue(new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0));
+        // controller1.a().onTrue(new ArmPIDCommand(arm, 0.0*(Math.PI/180), 0));
+        // controller1.x().onTrue(new ArmPIDCommand(arm, 90.0*(Math.PI/180), 0));
+
+        // controller1.povRight().onTrue(new ArmPIDCommand(arm, 0.0, -180.0*(Math.PI/180)));
+        // controller1.povDown().onTrue(new ArmPIDCommand(arm, 0.0, 0.0));
+        // controller1.povLeft().onTrue(new ArmPIDCommand(arm, 0.0, 180.0*(Math.PI/180)));
+        // controller1.povUp().onTrue(new ArmPIDCommand(arm, 0.0, 90.0*(Math.PI/180)));
     }
 
     /**

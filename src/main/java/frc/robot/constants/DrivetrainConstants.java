@@ -55,6 +55,13 @@ public class DrivetrainConstants {
         double kD
     ) {}
 
+    public record FFCoefficients (
+        double kS,
+        double kV,
+        double kA,
+        double kG
+    ) {}
+
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(15.0, 0.0, 0.0);
 
     public record ModuleCoefficients(

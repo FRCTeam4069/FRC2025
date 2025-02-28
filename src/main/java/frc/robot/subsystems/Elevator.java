@@ -1,110 +1,112 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import pabeles.concurrency.ConcurrencyOps.Reset;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
-import java.beans.Encoder;
+import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.controls.DutyCycleOut;
-import com.revrobotics.spark.SparkLimitSwitch;
 
 import frc.robot.constants.DeviceIDs;
+import frc.robot.constants.ElevatorConstants;
  
 
 public class Elevator extends SubsystemBase {
+    private final TalonFX left;
+    private final TalonFX right;
+
+    private DutyCycleOut leftOutput = new DutyCycleOut(0.0);
+    private DutyCycleOut rightOutput = new DutyCycleOut(0.0);
+
+    private ProfiledPIDController pid = new ProfiledPIDController(
+        ElevatorConstants.pidCoefficients.kP(), 
+        ElevatorConstants.pidCoefficients.kP(), 
+        ElevatorConstants.pidCoefficients.kP(), 
+        ElevatorConstants.constraints);
+
+    private ElevatorFeedforward ff = new ElevatorFeedforward(
+        ElevatorConstants.ffCoefficients.kS(), 
+        ElevatorConstants.ffCoefficients.kG(), 
+        ElevatorConstants.ffCoefficients.kV(),
+        ElevatorConstants.ffCoefficients.kA());
+
+    private boolean lastAtBottom = false; 
+    private boolean atBottom = false; 
     
-    private TalonFX leftMotor;
-    private TalonFX rightMotor;
+    private double currentPosition = 0.0;
+    private double positionOffset = 0.0;
 
-
-    private final DutyCycleOut leftOut;
-    private final DutyCycleOut rightOut;
-
-    private boolean limitState; 
-
-    final DigitalInput reverseSoftLimit = new DigitalInput(1);//FIXME once wwe know the actual port
-
+    private final DigitalInput leftLimit;
+    private final DigitalInput rightLimit;
     
-    public void ConfigureMotors(){
+    public Elevator(){
+        left = new TalonFX(DeviceIDs.ELEVATOR_LEFT, "rio");
+        right = new TalonFX(DeviceIDs.ELEVATOR_RIGHT, "rio");
 
-        var leftConfiguration = new TalonFXConfiguration();
-        var rightConfiguration = new TalonFXConfiguration();
+        left.getConfigurator().apply(ElevatorConstants.leftConfig);
+        right.getConfigurator().apply(ElevatorConstants.rightConfig);
 
-        leftConfiguration.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
-        rightConfiguration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        left.setPosition(0);
+        right.setPosition(0);
 
-        leftConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-        rightConfiguration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+        leftLimit = new DigitalInput(DeviceIDs.ELEVATOR_LIMIT_LEFT);
+        rightLimit = new DigitalInput(DeviceIDs.ELEVATOR_LIMIT_RIGHT);
 
-        leftMotor.getConfigurator().apply(leftConfiguration);
-        rightMotor.getConfigurator().apply(rightConfiguration);
-
-        leftMotor.setPosition(0);
-        rightMotor.setPosition(0);
+        pid.setTolerance(ElevatorConstants.positionTolerance, ElevatorConstants.velocityTolerance);
         
     }
 
-    public Elevator() {
-        leftMotor = new TalonFX(1);// FIXME
-        rightMotor = new TalonFX(2);//FIXME
-
-        leftOut =  new DutyCycleOut(0);
-        rightOut = new DutyCycleOut(0);
-
-        // TODO put a variable in the device ID's thing for all of this
-
-        limitState = reverseLimitSwitch.isPressed();
-        
-        ConfigureMotors();
+    public void setPower(double power) {
+        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom));
+        right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom));
     }
 
-    void setPower(double power) {
-        leftOut.Output = power;
-        rightOut.Output = power;
-        leftMotor.setControl(leftOut);
-        rightMotor.setControl(rightOut);
+    private double getRawPosition() {
+        var position = rotationsToMeters((left.getPosition().getValueAsDouble() + right.getPosition().getValueAsDouble()) / 2.0);
+        return position;
     }
 
-    double getPosition() {
-        return leftMotor.getPosition().getValueAsDouble(); // TODO math to inches or metres
+    public double getPosition() {
+        return currentPosition;
     }
 
-    void stop(){
+    public double rotationsToMeters(double rotations) {
+        return rotations * 2 * Math.PI * ElevatorConstants.radius;
+    }
+
+    public void stop() {
         setPower(0);
     }
 
+    public Command drive(DoubleSupplier power) {
+        return run(() -> setPower(power.getAsDouble()));
+    }
+
     @Override
-    public void periodic(){
+    public void periodic() {
+        currentPosition = getRawPosition() - positionOffset;
 
-        if (limitState=true) {
-            stop();
+        atBottom = !leftLimit.get() || !rightLimit.get();
 
-           // leftMotor.setPosition(1); //reset encoders
-           // rightMotor.setPosition(1);
-           // TODO rising state detector
-           //TODO reset encoders like peters code
-           //TODO trapezoidal motion thing implementation
+        if (atBottom && !lastAtBottom) {
+            positionOffset += currentPosition;
         }
 
-        
-        leftMotor.setControl(leftOut.withOutput(1.0).withLimitReverseMotion(reverseSoftLimit.get()));
-        rightMotor.setControl(rightOut.withOutput(1.0).withLimitReverseMotion(reverseSoftLimit.get()));
-  
-        
+        lastAtBottom = atBottom;
+
+        SmartDashboard.putNumber("elevator position", currentPosition);
+        SmartDashboard.putNumber("left elevator position", rotationsToMeters(left.getPosition().getValueAsDouble()));
+        SmartDashboard.putNumber("right elevator position", rotationsToMeters(right.getPosition().getValueAsDouble()));
+        SmartDashboard.putNumber("elevator position", currentPosition);
+        SmartDashboard.putBoolean("elevator limit", atBottom);
+        SmartDashboard.putNumber("left elevator power", left.get());
+        SmartDashboard.putNumber("right elevator power", right.get());
     }
     
-//TODO power limits for motors
-//TODO clamp power spike for when it hits in case of failure
-
-//TODO trapezoidal motion 
-//TODO
-
 }
-
-
-//TODO pid loop integration for gravity feedforward
