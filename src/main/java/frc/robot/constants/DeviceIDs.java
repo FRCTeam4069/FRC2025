@@ -20,6 +20,8 @@ public final class DeviceIDs {
     public static final byte ELEVATOR_LEFT = 5;
     public static final byte ELEVATOR_RIGHT = 6;
     public static final byte HORIZONTAL_EXTENSION = 7;
+    public static final byte ARM_LEFT = 8;
+    public static final byte ARM_RIGHT = 9;
 
     public static final byte POWER_DISTRIBUTION_HUB = 40;
     

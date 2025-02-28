@@ -233,14 +233,6 @@ public class SwerveDrivetrain extends SubsystemBase {
         var speeds = getRobotRelativeSpeeds();
         speedsPublisher.set(speeds);
         SmartDashboard.putNumber("max speed", Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
-        // SmartDashboard.putNumber("fl steer pos", fl.getSteerPosition());
-        // SmartDashboard.putNumber("fl encoder pos", fl.getEncoderRadians());
-        // SmartDashboard.putNumber("fl drive pos", fl.getDrivePosition());
-
-        SmartDashboard.putNumber("bl steer pos", bl.getSteerPosition());
-        SmartDashboard.putNumber("bl encoder pos", bl.getEncoderRadians());
-        SmartDashboard.putNumber("bl drive pos", bl.getDrivePosition());
-        SmartDashboard.putNumber("bl steer applied voltage", bl.getSteerVoltage());
 
     }
 
