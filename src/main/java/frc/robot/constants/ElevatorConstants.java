@@ -1,26 +1,24 @@
 package frc.robot.constants;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
-import com.ctre.phoenix6.configs.AudioConfigs;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.VoltageConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
-public class ArmConstants {
 
+public class ElevatorConstants {
     public static final double supplyCurrentLimit = 40.0;
     public static final double statorCurrentLimit = 100.0;
-    public static final double ratio = 5.0 * 5.0;
+    public static final double ratio = 10.0;
+    public static final double radius = Inches.of(1.375/2.0).in(Meters);
 
     public static final TalonFXConfiguration rightConfig = new TalonFXConfiguration()
         .withCurrentLimits(
@@ -49,28 +47,12 @@ public class ArmConstants {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
 
-    public volatile static PIDCoefficients pitchPIDCoefficients = new PIDCoefficients(0.25, 0.0, 0.0);
-    public volatile static PIDCoefficients rollPIDCoefficients = new PIDCoefficients(1.0, 0.0, 0.01);
+    public static PIDCoefficients pidCoefficients = new PIDCoefficients(1.5, 0.0, 0.01);
+    public static FFCoefficients ffCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.0);
 
-    public volatile static PIDCoefficients pitchDrivePIDCoefficients = new PIDCoefficients(0.1, 0.0, 0.0);
-    public volatile static PIDCoefficients rollDrivePIDCoefficients = new PIDCoefficients(0.5, 0.0, 0.0);
+    public static Constraints constraints = new Constraints(100000.0, 100000.0);
 
-    public volatile static FFCoefficients pitchFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.038);
-    public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.0);
+    public static double positionTolerance = 0.02;
+    public static double velocityTolerance = 1.00;
 
-    public volatile static Constraints pitchConstraints = new Constraints(20.0, 120.0);
-    public volatile static Constraints rollConstraints = new Constraints(10.0, 100.0);
-
-    public volatile static double pitchPositionTolerance = Degrees.of(2.0).in(Radians);
-    public volatile static double pitchVelocityTolerance = 5.0;
-
-    public volatile static double rollPositionTolerance = Degrees.of(2.0).in(Radians);
-    public volatile static double rollVelocityTolerance = 5.0;
-
-    public static final double startingPosition = -122.0 * (Math.PI/180.0); // rads
-    public static final double balancePoint = 25.0 * (Math.PI/180.0); // rads
-    public static final double rotatePoint = 50.0 * (Math.PI/180.0); // rads
-
-    public static final double lowerLimit = -122.0 * (Math.PI/180.0); // rads
-    public static final double upperLimit = 85.0 * (Math.PI/180.0); // rads
 }

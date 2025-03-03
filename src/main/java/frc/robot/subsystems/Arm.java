@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -15,6 +18,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanTopic;
 import edu.wpi.first.networktables.GenericEntry;
@@ -29,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.NetworkButton;
 import frc.robot.constants.ArmConstants;
 import frc.robot.constants.DeviceIDs;
+import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
 /**
@@ -45,6 +50,12 @@ public class Arm extends SubsystemBase {
     private ArmFeedforward ff = new ArmFeedforward(0.0, 0.0, 0.0, 0.0);
     private ProfiledPIDController pitchPID = new ProfiledPIDController(ArmConstants.pitchPIDCoefficients.kP(), ArmConstants.pitchPIDCoefficients.kI(), ArmConstants.pitchPIDCoefficients.kD(), ArmConstants.pitchConstraints);
     private ProfiledPIDController rollPID = new ProfiledPIDController(ArmConstants.rollPIDCoefficients.kP(), ArmConstants.rollPIDCoefficients.kI(), ArmConstants.rollPIDCoefficients.kD(), ArmConstants.rollConstraints);
+
+    private double kGPitch = ArmConstants.pitchFFCoefficients.kG();
+    private double kGRoll = ArmConstants.rollFFCoefficients.kG();
+
+    private double lastPitch = 0.0;
+    private double lastRoll = 0.0;
     
     public Arm() {
         left = new TalonFX(DeviceIDs.ARM_LEFT, "rio");
@@ -53,8 +64,8 @@ public class Arm extends SubsystemBase {
         left.getConfigurator().apply(ArmConstants.leftConfig);
         right.getConfigurator().apply(ArmConstants.rightConfig);
 
-        left.setPosition(122.0/360.0);
-        right.setPosition(122.0/360.0);
+        left.setPosition(Radians.of(ArmConstants.startingPosition).in(Rotations));
+        right.setPosition(Radians.of(ArmConstants.startingPosition).in(Rotations));
 
         pitchPID.setTolerance(ArmConstants.pitchPositionTolerance, ArmConstants.pitchVelocityTolerance);
         rollPID.setTolerance(ArmConstants.rollPositionTolerance, ArmConstants.rollVelocityTolerance);
@@ -62,6 +73,11 @@ public class Arm extends SubsystemBase {
         SmartDashboard.putNumber("pitch kP", ArmConstants.pitchPIDCoefficients.kP());
         SmartDashboard.putNumber("pitch kI", ArmConstants.pitchPIDCoefficients.kI());
         SmartDashboard.putNumber("pitch kD", ArmConstants.pitchPIDCoefficients.kD());
+        SmartDashboard.putNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
+        SmartDashboard.putNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
+
+        SmartDashboard.putNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
+        SmartDashboard.putNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
 
         SmartDashboard.putNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
         SmartDashboard.putNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
@@ -69,11 +85,11 @@ public class Arm extends SubsystemBase {
     }
 
     public void setLeft(double speed) {
-        left.setControl(leftOutput.withOutput(speed));
+        left.setControl(leftOutput.withOutput(speed).withLimitForwardMotion(forwardLimit()).withLimitReverseMotion(reverseLimit()));
     }
 
     public void setRight(double speed) {
-        right.setControl(rightOutput.withOutput(speed));
+        right.setControl(rightOutput.withOutput(speed).withLimitForwardMotion(forwardLimit()).withLimitReverseMotion(reverseLimit()));
     }
 
     public double getLeftRotations() {
@@ -180,17 +196,32 @@ public class Arm extends SubsystemBase {
     }
 
     public void drive(double pitch, double roll) {
-        setLeft(pitch + (roll/2.0));
-        setRight(pitch - (roll/2.0));
+        var theta = getPitch() - ArmConstants.balancePoint;
+        var thetaRoll = getRoll();
+
+        var ffRoll = (kGRoll * Math.sin(thetaRoll)) * (-1.0 * kGPitch * Math.sin(theta));
+        var ffPitch = (-1.0 * kGPitch * Math.sin(theta)) + (ArmConstants.pitchFFCoefficients.kS() * Math.signum(pitch));
+
+        SmartDashboard.putNumber("arm ffPitch", ffPitch);
+        SmartDashboard.putNumber("arm ffRoll", ffRoll);
+
+        var pitchOutput = pitch + ffPitch;
+        var rollOutput = roll;
+
+        setLeft(pitchOutput + (rollOutput/2.0));
+        setRight(pitchOutput - (rollOutput/2.0));
     }
 
     public void setPosition(double pitch, double roll) {
         double pitchOutput = pitchPID.calculate(getPitch(), pitch);
         double rollOutput = rollPID.calculate(getRoll(), roll);
 
-        ff.calculate(getPitch()-(ArmConstants.balancePoint+(90.0*Math.PI/180.0)), 0.0);
-
         drive(pitchOutput, rollOutput);
+    }
+
+    public double calculatePitchPID(double pitch) {
+        double pitchOutput = pitchPID.calculate(getPitch(), pitch);
+        return pitchOutput;
     }
 
     public void resetControllers() {
@@ -199,12 +230,24 @@ public class Arm extends SubsystemBase {
     }
 
     public boolean atPosition() {
-        return pitchPID.atSetpoint() && rollPID.atSetpoint();
+        return pitchPID.atGoal() && rollPID.atSetpoint();
+    }
+
+    public boolean canRotate() {
+        return getPitch() > ArmConstants.rotatePoint;
     }
 
     public void stop() {
         setLeft(0.0);
         setRight(0.0);
+    }
+
+    public boolean reverseLimit() {
+        return getPitch() <= ArmConstants.lowerLimit;
+    }
+
+    public boolean forwardLimit() {
+        return getPitch() >= ArmConstants.upperLimit;
     }
 
     public Command driveCommand(DoubleSupplier left, DoubleSupplier right) {
@@ -236,17 +279,27 @@ public class Arm extends SubsystemBase {
         double pitchVel = SmartDashboard.getNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
         double pitchAccel = SmartDashboard.getNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
 
+        double pitchKG = SmartDashboard.getNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
+
         double rollKP = SmartDashboard.getNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
         double rollKI = SmartDashboard.getNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
         double rollKD = SmartDashboard.getNumber("roll kD", ArmConstants.rollPIDCoefficients.kD());
         double rollVel = SmartDashboard.getNumber("roll max vel", ArmConstants.rollConstraints.maxVelocity);
         double rollAccel = SmartDashboard.getNumber("roll max accel", ArmConstants.rollConstraints.maxAcceleration);
 
+        double rollKG = SmartDashboard.getNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
+
         ArmConstants.pitchPIDCoefficients = new PIDCoefficients(pitchKP, pitchKI, pitchKD);
         pitchPID.setPID(pitchKP, pitchKI, pitchKD);
 
         ArmConstants.rollPIDCoefficients = new PIDCoefficients(rollKP, rollKI, rollKD);
         rollPID.setPID(rollKP, rollKI, rollKD);
+
+        ArmConstants.pitchFFCoefficients = new FFCoefficients(0.0, pitchKG, 0.0, 0.0);
+        kGPitch = pitchKG;
+
+        ArmConstants.rollFFCoefficients = new FFCoefficients(0.0, rollKG, 0.0, 0.0);
+        kGRoll = rollKG;
 
         ArmConstants.pitchConstraints = new Constraints(pitchVel, pitchAccel);
         ArmConstants.rollConstraints = new Constraints(rollVel, rollAccel);
