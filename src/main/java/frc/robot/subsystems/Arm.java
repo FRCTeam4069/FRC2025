@@ -237,6 +237,27 @@ public class Arm extends SubsystemBase {
         return getPitch() > ArmConstants.rotatePoint;
     }
 
+    public Command pid(double pitch, double roll) {
+        return new Command() {
+            @Override
+            public void initialize() {
+                resetControllers();
+            }
+            @Override
+            public void execute() {
+                setPosition(pitch, roll);
+            }
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+            @Override
+            public boolean isFinished() {
+                return atPosition();
+            }
+        };
+    }
+
     public void stop() {
         setLeft(0.0);
         setRight(0.0);

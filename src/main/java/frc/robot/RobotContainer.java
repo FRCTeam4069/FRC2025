@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,8 +19,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.ArmDriveCommand;
-import frc.robot.commands.ArmPIDCommand;
 import frc.robot.commands.FieldCentricDrive;
+import frc.robot.constants.ElevatorConstants;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.HorizontalExtension;
@@ -58,9 +60,10 @@ public class RobotContainer {
                 () -> controller0.y().getAsBoolean(),
                 () -> controller0.b().getAsBoolean()));
         
-        arm.setDefaultCommand(new ArmDriveCommand(arm, () -> -controller1.getLeftY(), () -> -controller1.getRightY()));
+        // arm.setDefaultCommand(new ArmDriveCommand(arm, () -> -controller1.getLeftY(), () -> -controller1.getRightY()));
 
-        elevator.setDefaultCommand(elevator.drive(() -> controller1.getRightTriggerAxis() - controller1.getLeftTriggerAxis()));
+        // elevator.setDefaultCommand(elevator.drive(() -> controller1.getRightTriggerAxis() - controller1.getLeftTriggerAxis()));
+        elevator.setDefaultCommand(elevator.drive(() -> -controller1.getLeftY()));
 
         //horizontalExtension.setDefaultCommand(horizontalExtension.drive(() -> -controller1.getRightY()));
         
@@ -105,12 +108,15 @@ public class RobotContainer {
         // controller1.a().onTrue(new ArmPIDCommand(arm, 0.0*(Math.PI/180), 0));
         // controller1.x().onTrue(new ArmPIDCommand(arm, 45.0*(Math.PI/180), 0));
 
+        controller1.povUp().onTrue(elevator.pid(ElevatorConstants.l4));
+        controller1.povDown().onTrue(elevator.pid(0.0));
+
         controller1.y().onTrue(
             new ConditionalCommand(
-                new ArmPIDCommand(arm, 60.0*(Math.PI/180), 90.0*(Math.PI/180)), 
+                arm.pid(60.0*(Math.PI/180), 90.0*(Math.PI/180)), 
                 new SequentialCommandGroup(
-                    new ArmPIDCommand(arm, 50.0*(Math.PI/180), 0.0), 
-                    new ArmPIDCommand(arm, 60.0*(Math.PI/180), 90.0*(Math.PI/180))
+                    arm.pid(50.0*(Math.PI/180), 0.0), 
+                    arm.pid(60.0*(Math.PI/180), 90.0*(Math.PI/180))
                 ),
                 () -> arm.canRotate())
             );
@@ -118,10 +124,10 @@ public class RobotContainer {
         controller1.a().onTrue(
             new ConditionalCommand(
                 new SequentialCommandGroup(
-                    new ArmPIDCommand(arm, 50.0*(Math.PI/180), 0.0), 
-                    new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0.0*(Math.PI/180))
+                    arm.pid(50.0*(Math.PI/180), 0.0), 
+                    arm.pid(-90.0*(Math.PI/180), 0.0*(Math.PI/180))
                 ),
-                new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0.0), 
+                arm.pid(-90.0*(Math.PI/180), 0.0), 
                 () -> Math.abs(arm.getRoll()) > 0.06 && arm.canRotate())
             );
 

@@ -18,7 +18,7 @@ public class ElevatorConstants {
     public static final double supplyCurrentLimit = 40.0;
     public static final double statorCurrentLimit = 100.0;
     public static final double ratio = 10.0;
-    public static final double radius = Inches.of(1.375/2.0).in(Meters);
+    public static final double radius = Inches.of(1.375/2.0).in(Meters); // meters
 
     public static final TalonFXConfiguration rightConfig = new TalonFXConfiguration()
         .withCurrentLimits(
@@ -47,12 +47,19 @@ public class ElevatorConstants {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
 
-    public static PIDCoefficients pidCoefficients = new PIDCoefficients(1.5, 0.0, 0.01);
-    public static FFCoefficients ffCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.0);
+    public volatile static PIDCoefficients pidCoefficients = new PIDCoefficients(15.0, 0.0, 0.0);
+    public volatile static FFCoefficients ffCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.015);
 
-    public static Constraints constraints = new Constraints(100000.0, 100000.0);
+    public volatile static Constraints constraints = new Constraints(1.6, 4.0);
 
-    public static double positionTolerance = 0.02;
-    public static double velocityTolerance = 1.00;
+    public volatile static double positionTolerance = 0.02;
+    public volatile static double velocityTolerance = 1.00;
+
+    public static final double upperLimit = 1.34;
+    public static final double l1 = Inches.of(1).in(Meters);
+    public static final double l2 = Inches.of(6).in(Meters);
+    public static final double l3 = Inches.of(18).in(Meters);
+    public static final double l4 = Inches.of(36).in(Meters);
+    public static final double hp = Inches.of(16).in(Meters);
 
 }

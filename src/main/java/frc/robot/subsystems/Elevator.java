@@ -1,13 +1,18 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.function.DoubleSupplier;
 
@@ -43,6 +48,8 @@ public class Elevator extends SubsystemBase {
 
     private final DigitalInput leftLimit;
     private final DigitalInput rightLimit;
+
+    private double kg = ElevatorConstants.ffCoefficients.kG();
     
     public Elevator(){
         left = new TalonFX(DeviceIDs.ELEVATOR_LEFT, "rio");
@@ -59,11 +66,25 @@ public class Elevator extends SubsystemBase {
 
         pid.setTolerance(ElevatorConstants.positionTolerance, ElevatorConstants.velocityTolerance);
         
+        SmartDashboard.putNumber("elevator kP", ElevatorConstants.pidCoefficients.kP());
+        SmartDashboard.putNumber("elevator kI", ElevatorConstants.pidCoefficients.kI());
+        SmartDashboard.putNumber("elevator kD", ElevatorConstants.pidCoefficients.kD());
+        SmartDashboard.putNumber("elevator kG", ElevatorConstants.ffCoefficients.kG());
     }
 
     public void setPower(double power) {
-        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom));
-        right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom));
+        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
+        right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
+    }
+    
+    public void drive(double power) {
+        var ffOutput = kg;
+
+        setPower(power + ffOutput);
+    }
+
+    public boolean upperLimit() {
+        return getPosition() > ElevatorConstants.upperLimit;
     }
 
     private double getRawPosition() {
@@ -71,8 +92,74 @@ public class Elevator extends SubsystemBase {
         return position;
     }
 
+    /**
+     * @return meters
+     */
     public double getPosition() {
         return currentPosition;
+    }
+
+    /**
+     * @return m/s
+     */
+    public double getVelocity() {
+        return (rotationsToMeters(left.getVelocity().getValueAsDouble()) + rotationsToMeters(right.getVelocity().getValueAsDouble())) / 2.0;
+    }
+
+    /**
+     * @return m/s^2
+     */
+    public double getAcceleration() {
+        return (rotationsToMeters(left.getAcceleration().getValueAsDouble()) + rotationsToMeters(right.getAcceleration().getValueAsDouble())) / 2.0;
+    }
+
+    /**
+     * @param setpoint meters
+     */
+    public void setPosition(double setpoint) {
+        double power = pid.calculate(getPosition(), setpoint);
+        drive(power);
+    }
+
+    public void resetController(State state) {
+        pid.reset(state);
+    }
+
+    public boolean atSetpoint() {
+        if (pid.getSetpoint().position == 0.0) {
+            return atBottom;
+        } else {
+            return pid.atGoal();
+        }
+    }
+
+    /**
+     * @param setpoint meters
+     */
+    public Command pid(double setpoint) {
+        return new Command() {
+            @Override
+            public void initialize() {
+                var state = new State(getPosition(), getVelocity());
+                resetController(state);
+            }
+            @Override
+            public void execute() {
+                double power = pid.calculate(getPosition(), setpoint);
+                if (getPosition() < 0.06) {
+                    power = MathUtil.clamp(power, -0.5, 1.0);
+                }
+                drive(power);
+            }
+            @Override
+            public boolean isFinished() {
+                return atSetpoint();
+            }
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
     }
 
     public double rotationsToMeters(double rotations) {
@@ -80,11 +167,11 @@ public class Elevator extends SubsystemBase {
     }
 
     public void stop() {
-        setPower(0);
+        drive(0.0);
     }
 
     public Command drive(DoubleSupplier power) {
-        return run(() -> setPower(power.getAsDouble()));
+        return run(() -> drive(power.getAsDouble()));
     }
 
     @Override
@@ -104,8 +191,17 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putNumber("right elevator position", rotationsToMeters(right.getPosition().getValueAsDouble()));
         SmartDashboard.putNumber("elevator position", currentPosition);
         SmartDashboard.putBoolean("elevator limit", atBottom);
-        SmartDashboard.putNumber("left elevator power", left.get());
+        SmartDashboard.putNumber("elevator velocity", getVelocity());
+        SmartDashboard.putNumber("elevator accel", getAcceleration());
         SmartDashboard.putNumber("right elevator power", right.get());
+
+        double kp = SmartDashboard.getNumber("elevator kP", ElevatorConstants.pidCoefficients.kP());
+        double ki = SmartDashboard.getNumber("elevator kI", ElevatorConstants.pidCoefficients.kI());
+        double kd = SmartDashboard.getNumber("elevator kD", ElevatorConstants.pidCoefficients.kD());
+        double kg = SmartDashboard.getNumber("elevator kG", ElevatorConstants.ffCoefficients.kG());
+
+        pid.setPID(kp, ki, kd);
+        this.kg = kg;
     }
     
 }
