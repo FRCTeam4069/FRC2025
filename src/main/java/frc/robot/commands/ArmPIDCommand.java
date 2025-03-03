@@ -4,7 +4,10 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.ArmConstants;
 import frc.robot.subsystems.Arm;
 
 public class ArmPIDCommand extends Command {
@@ -16,6 +19,13 @@ public class ArmPIDCommand extends Command {
         this.arm = arm;
         this.pitch = pitch;
         this.roll = roll;
+
+        if (pitch < ArmConstants.lowerLimit || pitch > ArmConstants.upperLimit) {
+            var alert = new Alert("Pitch out of bounds", AlertType.kError);
+            alert.set(true);
+            alert.close();
+            cancel();
+        }
 
         addRequirements(arm);
     }

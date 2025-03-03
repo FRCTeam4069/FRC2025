@@ -15,7 +15,6 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 
 import frc.robot.constants.DeviceIDs;
 import frc.robot.constants.ElevatorConstants;
- 
 
 public class Elevator extends SubsystemBase {
     private final TalonFX left;

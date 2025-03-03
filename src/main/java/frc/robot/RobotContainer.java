@@ -10,14 +10,18 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.ArmDriveCommand;
 import frc.robot.commands.ArmPIDCommand;
 import frc.robot.commands.FieldCentricDrive;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.HorizontalExtension;
 import frc.robot.subsystems.TestModule;
 import frc.robot.subsystems.TestSubsystem;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
@@ -36,6 +40,7 @@ public class RobotContainer {
     public static final SwerveDrivetrain drive = new SwerveDrivetrain();
     public static final Arm arm = new Arm();
     public static final Elevator elevator = new Elevator();
+    public static final HorizontalExtension horizontalExtension = new HorizontalExtension();
     // public static final TestModule test = new TestModule();
  
     private final CommandXboxController controller0 = new CommandXboxController(0);
@@ -53,9 +58,11 @@ public class RobotContainer {
                 () -> controller0.y().getAsBoolean(),
                 () -> controller0.b().getAsBoolean()));
         
-        //arm.setDefaultCommand(arm.driveCommand(() -> -controller1.getLeftY(), () -> -controller1.getRightY()));
+        arm.setDefaultCommand(new ArmDriveCommand(arm, () -> -controller1.getLeftY(), () -> -controller1.getRightY()));
 
-        elevator.setDefaultCommand(elevator.drive(() -> -controller1.getLeftY()));
+        elevator.setDefaultCommand(elevator.drive(() -> controller1.getRightTriggerAxis() - controller1.getLeftTriggerAxis()));
+
+        //horizontalExtension.setDefaultCommand(horizontalExtension.drive(() -> -controller1.getRightY()));
         
         autoChooser = AutoBuilder.buildAutoChooser();
         // autoChooser.addOption("driveQuasistaticForward", drive.alignForward().andThen(drive.driveSysIdRoutine.quasistatic(Direction.kForward)));
@@ -88,9 +95,35 @@ public class RobotContainer {
         controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
 
+        // controller1.y().onTrue(
+        //     new SequentialCommandGroup(
+        //         new ArmPIDCommand(arm, 0.0*(Math.PI/180), 0.0*(Math.PI/180)),
+        //         new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0.0*(Math.PI/180))
+        //     )
+        //     );
         // controller1.b().onTrue(new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0));
         // controller1.a().onTrue(new ArmPIDCommand(arm, 0.0*(Math.PI/180), 0));
-        // controller1.x().onTrue(new ArmPIDCommand(arm, 90.0*(Math.PI/180), 0));
+        // controller1.x().onTrue(new ArmPIDCommand(arm, 45.0*(Math.PI/180), 0));
+
+        controller1.y().onTrue(
+            new ConditionalCommand(
+                new ArmPIDCommand(arm, 60.0*(Math.PI/180), 90.0*(Math.PI/180)), 
+                new SequentialCommandGroup(
+                    new ArmPIDCommand(arm, 50.0*(Math.PI/180), 0.0), 
+                    new ArmPIDCommand(arm, 60.0*(Math.PI/180), 90.0*(Math.PI/180))
+                ),
+                () -> arm.canRotate())
+            );
+
+        controller1.a().onTrue(
+            new ConditionalCommand(
+                new SequentialCommandGroup(
+                    new ArmPIDCommand(arm, 50.0*(Math.PI/180), 0.0), 
+                    new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0.0*(Math.PI/180))
+                ),
+                new ArmPIDCommand(arm, -90.0*(Math.PI/180), 0.0), 
+                () -> Math.abs(arm.getRoll()) > 0.06 && arm.canRotate())
+            );
 
         // controller1.povRight().onTrue(new ArmPIDCommand(arm, 0.0, -180.0*(Math.PI/180)));
         // controller1.povDown().onTrue(new ArmPIDCommand(arm, 0.0, 0.0));
