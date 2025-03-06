@@ -86,6 +86,11 @@ public class Manipulator extends SubsystemBase {
             new InstantCommand(() -> setKicker(0.0)));
     }
 
+    public Command shoot() {
+        return runOnce(() -> setIntake(-1.0));
+    }
+        
+
     @Override
     public void periodic() {
         

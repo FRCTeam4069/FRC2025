@@ -15,9 +15,22 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "sequential",
                 "data": {
-                  "waitTime": 0.5
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "place l4 left"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "home"
+                      }
+                    }
+                  ]
                 }
               },
               {

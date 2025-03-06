@@ -67,7 +67,10 @@ public class Arm extends SubsystemBase {
         L2_PLACE,
         L3_PLACE,
         L4_PLACE,
-        HP
+        HP,
+        BALL_L2_PICKUP,
+        BALL_L3_PICKUP,
+        BALL_PLACE
     }
 
     private ArmState state = ArmState.HOME;

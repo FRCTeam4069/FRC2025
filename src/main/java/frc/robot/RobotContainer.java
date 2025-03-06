@@ -95,16 +95,20 @@ public class RobotContainer {
         controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
 
-        controller1.a().onTrue(humanPlayer());
-        controller1.y().onTrue(manipulator.stopIntake());
+        controller1.b().onTrue(humanPlayer());
+        // controller1.y().onTrue(manipulator.stopIntake());
         // controller1.x().onTrue(manipulator.kickLeft());
         // controller1.b().onTrue(manipulator.kickRight());
-        controller1.povDown().onTrue(home());
+        controller1.a().onTrue(home());
         controller1.povLeft().onTrue(midL2());
         controller1.povRight().onTrue(midL3());
         controller1.povUp().onTrue(midL4());
         controller1.leftBumper().onTrue(placeLeft());
         controller1.rightBumper().onTrue(placeRight());
+        controller1.x().onTrue(ballPickupL2());
+        controller1.y().onTrue(ballPickupL3());
+        controller1.back().onTrue(ballLaunch());
+        controller1.start().onTrue(ballPlace());
 
         controller1.rightTrigger(0.05).onTrue(manipulator.runIntake()).onFalse(manipulator.stopIntake());
         controller1.leftTrigger(0.05).onTrue(manipulator.runIntake()).onFalse(manipulator.stopIntake());
@@ -118,11 +122,19 @@ public class RobotContainer {
 
     private void registerAutoCommands() {
         NamedCommands.registerCommand("stop drivetrain", drive.stopCommand());
-        NamedCommands.registerCommand("place l4 left", midL4FromHome().andThen(placeLeft()).andThen(manipulator.kickLeft()).andThen(midPlace(ArmState.L4_PLACE)));
-        NamedCommands.registerCommand("place l4 right", midL4FromHome().andThen(placeRight()).andThen(manipulator.kickRight()).andThen(midPlace(ArmState.L4_PLACE)));
+        NamedCommands.registerCommand("place l4 left", placeL4Left());
+        NamedCommands.registerCommand("place l4 right", placeL4Right());
         NamedCommands.registerCommand("human player", humanPlayer());
         NamedCommands.registerCommand("stop intake", manipulator.stopIntake());
         NamedCommands.registerCommand("home", home());
+    }
+
+    private Command placeL4Left() {
+        return Commands.sequence(midL4FromHome().withTimeout(7.0), placeLeft().withTimeout(2.0), Commands.waitSeconds(0.2), manipulator.kickLeft(), midPlace(ArmState.L4_PLACE));
+    }
+
+    private Command placeL4Right() {
+        return Commands.sequence(midL4FromHome().withTimeout(7.0), placeRight().withTimeout(2.0), Commands.waitSeconds(0.2), manipulator.kickRight(), midPlace(ArmState.L4_PLACE));
     }
 
     public Command defaultDriveCommand() {
@@ -162,7 +174,10 @@ public class RobotContainer {
                 Map.entry(ArmState.L3_PLACE, midPlace(ArmState.L3_PLACE)),
                 Map.entry(ArmState.L4_PLACE, midPlace(ArmState.L4_PLACE)),
                 Map.entry(ArmState.HOME, midL2FromHome()),
-                Map.entry(ArmState.HP, midL2FromHome())
+                Map.entry(ArmState.HP, midL2FromHome()),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
             ), () -> arm.getState());
     }
 
@@ -178,7 +193,10 @@ public class RobotContainer {
                 Map.entry(ArmState.L3_PLACE, midPlace(ArmState.L3_PLACE)),
                 Map.entry(ArmState.L4_PLACE, midPlace(ArmState.L4_PLACE)),
                 Map.entry(ArmState.HOME, midL3FromHome()),
-                Map.entry(ArmState.HP, midL3FromHome())
+                Map.entry(ArmState.HP, midL3FromHome()),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
             ), () -> arm.getState());
     }
 
@@ -194,7 +212,10 @@ public class RobotContainer {
                 Map.entry(ArmState.L3_PLACE, midPlace(ArmState.L3_PLACE)),
                 Map.entry(ArmState.L4_PLACE, midPlace(ArmState.L4_PLACE)),
                 Map.entry(ArmState.HOME, midL4FromHome()),
-                Map.entry(ArmState.HP, midL4FromHome())
+                Map.entry(ArmState.HP, midL4FromHome()),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
             ), () -> arm.getState());
     }
 
@@ -210,7 +231,10 @@ public class RobotContainer {
                 Map.entry(ArmState.L3_PLACE, homeFromPlace()),
                 Map.entry(ArmState.L4_PLACE, homeFromL4Place()),
                 Map.entry(ArmState.HOME, new InstantCommand()),
-                Map.entry(ArmState.HP, homeFromHP())
+                Map.entry(ArmState.HP, homeFromHP()),
+                Map.entry(ArmState.BALL_L2_PICKUP, homeFromMid()),
+                Map.entry(ArmState.BALL_L3_PICKUP, homeFromMid()),
+                Map.entry(ArmState.BALL_PLACE, homeFromL4Mid())
             ), () -> arm.getState());
     }
 
@@ -226,7 +250,10 @@ public class RobotContainer {
                 Map.entry(ArmState.L3_PLACE, humanPlayerFromPlace()),
                 Map.entry(ArmState.L4_PLACE, humanPlayerFromL4Place()),
                 Map.entry(ArmState.HOME, humanPlayerFromHome()),
-                Map.entry(ArmState.HP, manipulator.runIntake())
+                Map.entry(ArmState.HP, humanPlayerFromHome()),
+                Map.entry(ArmState.BALL_L2_PICKUP, humanPlayerFromMid()),
+                Map.entry(ArmState.BALL_L3_PICKUP, humanPlayerFromMid()),
+                Map.entry(ArmState.BALL_PLACE, humanPlayerFromL4Mid())
             ), () -> arm.getState());
     }
 
@@ -260,6 +287,99 @@ public class RobotContainer {
                 Map.entry(ArmState.HOME, new InstantCommand()),
                 Map.entry(ArmState.HP, new InstantCommand())
             ), () -> arm.getState());
+    }
+
+    private Command ballPickupL2() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1_MID, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.L2_MID, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.L3_MID, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.L4_MID, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.L1_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L2_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L3_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L4_PLACE, new InstantCommand()),
+                Map.entry(ArmState.HOME, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.HP, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.BALL_L2_PICKUP, manipulator.runIntake()),
+                Map.entry(ArmState.BALL_L3_PICKUP, ballPickupL2FromEverywhere()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
+            ), () -> arm.getState());
+    }
+
+    private Command ballPickupL3() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1_MID, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.L2_MID, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.L3_MID, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.L4_MID, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.L1_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L2_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L3_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L4_PLACE, new InstantCommand()),
+                Map.entry(ArmState.HOME, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.HP, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.BALL_L2_PICKUP, ballPickupL3FromEverywhere()),
+                Map.entry(ArmState.BALL_L3_PICKUP, manipulator.runIntake()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
+            ), () -> arm.getState());
+    }
+
+    private Command ballPlace() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1_MID, ballPlaceFromHome()),
+                Map.entry(ArmState.L2_MID, ballPlaceFromHome()),
+                Map.entry(ArmState.L3_MID, ballPlaceFromHome()),
+                Map.entry(ArmState.L4_MID, ballPlaceFromHome()),
+                Map.entry(ArmState.L1_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L2_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L3_PLACE, new InstantCommand()),
+                Map.entry(ArmState.L4_PLACE, new InstantCommand()),
+                Map.entry(ArmState.HOME, ballPlaceFromHome()),
+                Map.entry(ArmState.HP, ballPlaceFromHome()),
+                Map.entry(ArmState.BALL_L2_PICKUP, ballPlaceFromHome()),
+                Map.entry(ArmState.BALL_L3_PICKUP, ballPlaceFromHome()),
+                Map.entry(ArmState.BALL_PLACE, ballPlaceFromHome())
+            ), () -> arm.getState());
+    }
+
+    private Command ballPickupL2FromEverywhere() {
+        return Commands.parallel(
+            manipulator.runIntake(),
+            arm.pid(70.0*(Math.PI/180), 0.0),
+            elevator.pid(ElevatorConstants.ballL2),
+            arm.setState(ArmState.BALL_L2_PICKUP)
+        );
+    }
+
+    private Command ballPickupL3FromEverywhere() {
+        return Commands.parallel(
+            manipulator.runIntake(),
+            arm.pid(70.0*(Math.PI/180), 0.0),
+            elevator.pid(ElevatorConstants.ballL3),
+            arm.setState(ArmState.BALL_L3_PICKUP)
+        );
+    }
+
+    private Command ballPlaceFromHome() {
+        return Commands.sequence(
+            Commands.parallel(
+                elevator.pid(ElevatorConstants.l4),
+                arm.setState(ArmState.BALL_PLACE),
+                arm.pid(0.0, 0.0),
+                manipulator.runIntake()
+            ),
+            arm.pid(ArmConstants.balancePoint, 0.0)
+        );
+    }
+
+    private Command ballLaunch() {
+        return Commands.sequence(
+            manipulator.shoot()
+        );
     }
 
     private Command leftPlace(ArmState initialState) {
