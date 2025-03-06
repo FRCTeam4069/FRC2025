@@ -25,6 +25,9 @@ public class FieldCentricDrive extends Command {
         DrivetrainConstants.teleOpHeadingCoefficients.kI(), 
         DrivetrainConstants.teleOpHeadingCoefficients.kD());
     private BooleanSupplier headingCorrection;
+    private BooleanSupplier humanPlayerLeft;
+    private BooleanSupplier humanPlayerRight;
+    private BooleanSupplier snapHeading;
     private double lastHeading = 0.0;
 
     private static double controllerDeadband = 0.05;
@@ -37,13 +40,26 @@ public class FieldCentricDrive extends Command {
      * @param halfSpeed 
      * @param headingCorrection whether to run pid controller on the heading
      */
-    public FieldCentricDrive(SwerveDrivetrain drive, DoubleSupplier forwardSpeed, DoubleSupplier strafeSpeed, DoubleSupplier turnSpeed, BooleanSupplier halfSpeed, BooleanSupplier headingCorrection) {
+    public FieldCentricDrive(
+        SwerveDrivetrain drive, 
+        DoubleSupplier forwardSpeed, 
+        DoubleSupplier strafeSpeed, 
+        DoubleSupplier turnSpeed, 
+        BooleanSupplier halfSpeed, 
+        BooleanSupplier headingCorrection,
+        BooleanSupplier humanPlayerLeft,
+        BooleanSupplier humanPlayerRight,
+        BooleanSupplier snapHeading) {
+
         this.drive = drive;
         this.turnSpeed = turnSpeed;
         this.forwardSpeed = forwardSpeed;
         this.strafeSpeed = strafeSpeed;
         this.halfSpeed = halfSpeed;
         this.headingCorrection = headingCorrection;
+        this.humanPlayerLeft = humanPlayerLeft;
+        this.humanPlayerRight = humanPlayerRight;
+        this.snapHeading = snapHeading;
 
         addRequirements(drive);
     }
@@ -63,7 +79,12 @@ public class FieldCentricDrive extends Command {
         
         SmartDashboard.putNumber("lastHeading", lastHeading);
 
-        if (headingCorrection.getAsBoolean()) {
+        int totalDesiredActions = (headingCorrection.getAsBoolean() ? 1 : 0) + (humanPlayerLeft.getAsBoolean() ? 1 : 0) + (humanPlayerRight.getAsBoolean() ? 1 : 0) + (snapHeading.getAsBoolean() ? 1 : 0);
+
+        if (totalDesiredActions != 1) {
+            ;
+        }
+        else if (headingCorrection.getAsBoolean()) {
             if (Math.abs(outputSpeeds.omegaRadiansPerSecond) < DrivetrainConstants.headingCorrectionDeadband
                 && (Math.abs(outputSpeeds.vxMetersPerSecond) > DrivetrainConstants.headingCorrectionDeadband 
                 || Math.abs(outputSpeeds.vyMetersPerSecond) > DrivetrainConstants.headingCorrectionDeadband)) 
@@ -72,8 +93,26 @@ public class FieldCentricDrive extends Command {
             } else {
                 lastHeading = drive.getRotation2d().getRadians();
             }
+        } else if (humanPlayerLeft.getAsBoolean()) {
+            outputSpeeds.omegaRadiansPerSecond = headingController.calculate(drive.getRotation2d().getRadians(), DrivetrainConstants.humanPlayerLeft);
+
+        } else if (humanPlayerRight.getAsBoolean()) {
+            outputSpeeds.omegaRadiansPerSecond = headingController.calculate(drive.getRotation2d().getRadians(), DrivetrainConstants.humanPlayerRight);
+        } else if (snapHeading.getAsBoolean()) {
+            double currentHeading = drive.getRotation2d().getRadians();
+            double closestAngle = DrivetrainConstants.snapAngles[0];
+            double closestDistance = Math.abs(currentHeading - DrivetrainConstants.snapAngles[0]);
+            for (double angle : DrivetrainConstants.snapAngles) {
+                double distance = Math.abs(currentHeading - angle);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestAngle = angle;
+                }
+            }
+            outputSpeeds.omegaRadiansPerSecond = headingController.calculate(currentHeading, closestAngle);
 
         }
+
 
         drive.fieldOrientedDrive(outputSpeeds);
 

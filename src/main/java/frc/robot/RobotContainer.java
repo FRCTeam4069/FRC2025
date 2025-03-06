@@ -12,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -94,6 +95,8 @@ public class RobotContainer {
     private void configureBindings() {
         controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
+        controller0.povLeft().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(1.0)));
+        controller0.povRight().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(-1.0)));
 
         controller1.b().onTrue(humanPlayer());
         // controller1.y().onTrue(manipulator.stopIntake());
@@ -143,8 +146,11 @@ public class RobotContainer {
                 () -> -controller0.getLeftY(),
                 () -> -controller0.getLeftX(),
                 () -> -controller0.getRightX(),
+                () -> controller0.leftBumper().getAsBoolean(),
                 () -> controller0.y().getAsBoolean(),
-                () -> controller0.b().getAsBoolean());
+                () -> controller0.x().getAsBoolean(),
+                () -> controller0.b().getAsBoolean(),
+                () -> controller0.rightBumper().getAsBoolean());
     }
 
     public Command defaultElevatorCommand() {

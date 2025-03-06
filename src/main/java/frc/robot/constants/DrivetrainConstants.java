@@ -1,5 +1,8 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.pathplanner.lib.config.PIDConstants;
@@ -41,6 +44,17 @@ public class DrivetrainConstants {
     public static final double angularVelocityCoefficient = 0.04;
     public static final double angularVelocityDeadband = 0.01;
     public static final double headingCorrectionDeadband = 0.05;
+
+    public static final double humanPlayerLeft = Degrees.of(-52.5).in(Radians);
+    public static final double humanPlayerRight = Degrees.of(52.5).in(Radians);
+
+    public static final double[] snapAngles = new double[]{
+        0.0, 
+        Degrees.of(60.0).in(Radians),
+        Degrees.of(120.0).in(Radians), 
+        Degrees.of(180.0).in(Radians), 
+        Degrees.of(-120.0).in(Radians), 
+        Degrees.of(-60.0).in(Radians)};
 
     public static RobotConfig config;
 

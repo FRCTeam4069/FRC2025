@@ -255,6 +255,10 @@ public class SwerveDrivetrain extends SubsystemBase {
         return runOnce(() -> resetHeading(new Rotation2d(0.0)));
     }
 
+    public Command increaseOffset(Rotation2d heading) {
+        return runOnce(() -> resetHeading(getRotation2d().plus(heading)));
+    }
+
     @Override
     public void periodic() {
         poseEstimator.update(getRawRotation2d(), getModulePositions());
