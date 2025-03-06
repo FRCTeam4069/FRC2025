@@ -71,6 +71,8 @@ public class SwerveModule {
             .apply(new EncoderConfig().positionConversionFactor(DrivetrainConstants.driveConversionFactor)
                 .velocityConversionFactor(DrivetrainConstants.driveConversionFactor * 1.0/60.0)); // to convert m/min to m/s
         
+        driveConfig.disableVoltageCompensation();
+        
         drive.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         SparkFlexConfig steerConfig = new SparkFlexConfig();
@@ -143,6 +145,18 @@ public class SwerveModule {
 
     }
 
+    public void fakeSetDesiredState(SwerveModuleState desiredState) {
+        Rotation2d currentRotation = getRotation2d();
+        desiredState.optimize(currentRotation);
+        double driveOutput = driveFF.calculate(desiredState.speedMetersPerSecond);
+        drive.setVoltage(driveOutput);
+    }
+
+    public void setDriveConversionFactor(double conversionFactor) {
+        drive.configure(new SparkMaxConfig().apply(new EncoderConfig().positionConversionFactor(conversionFactor)
+                .velocityConversionFactor(conversionFactor * 1.0/60.0)), ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters); // to convert m/min to m/s, null, null)  
+    }
+
     public double getSteerVoltage() {
         return steer.getAppliedOutput();
     }
@@ -153,8 +167,8 @@ public class SwerveModule {
      */
     public void setDriveVoltage(double voltage) {
         drive.setVoltage(voltage);
-        double steerOutput = steerPID.calculate(getRotation2d().getRadians(), 0.0);
-        steer.set(steerOutput);
+        //double steerOutput = steerPID.calculate(getRotation2d().getRadians(), 0.0);
+        //steer.set(steerOutput);
 
     }
 

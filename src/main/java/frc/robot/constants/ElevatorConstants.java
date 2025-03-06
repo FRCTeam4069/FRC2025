@@ -20,20 +20,6 @@ public class ElevatorConstants {
     public static final double ratio = 10.0;
     public static final double radius = Inches.of(1.375/2.0).in(Meters); // meters
 
-    public static final TalonFXConfiguration rightConfig = new TalonFXConfiguration()
-        .withCurrentLimits(
-            new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(ArmConstants.supplyCurrentLimit)
-                .withSupplyCurrentLimitEnable(true)
-                .withStatorCurrentLimit(ArmConstants.statorCurrentLimit)
-                .withStatorCurrentLimitEnable(true))
-        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(ratio))
-        .withMotorOutput(
-            new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
-                
-
     public static final TalonFXConfiguration leftConfig = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
@@ -47,7 +33,20 @@ public class ElevatorConstants {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
 
-    public volatile static PIDCoefficients pidCoefficients = new PIDCoefficients(15.0, 0.0, 0.0);
+    public static final TalonFXConfiguration rightConfig = new TalonFXConfiguration()
+        .withCurrentLimits(
+            new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(ArmConstants.supplyCurrentLimit)
+                .withSupplyCurrentLimitEnable(true)
+                .withStatorCurrentLimit(ArmConstants.statorCurrentLimit)
+                .withStatorCurrentLimitEnable(true))
+        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(ratio))
+        .withMotorOutput(
+            new MotorOutputConfigs()
+                .withNeutralMode(NeutralModeValue.Brake)
+                .withInverted(InvertedValue.CounterClockwise_Positive));
+
+    public volatile static PIDCoefficients pidCoefficients = new PIDCoefficients(20.0, 0.0, 0.0);
     public volatile static FFCoefficients ffCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.015);
 
     public volatile static Constraints constraints = new Constraints(1.6, 4.0);
@@ -56,10 +55,10 @@ public class ElevatorConstants {
     public volatile static double velocityTolerance = 1.00;
 
     public static final double upperLimit = 1.34;
-    public static final double l1 = Inches.of(1).in(Meters);
-    public static final double l2 = Inches.of(6).in(Meters);
-    public static final double l3 = Inches.of(18).in(Meters);
-    public static final double l4 = Inches.of(36).in(Meters);
-    public static final double hp = Inches.of(16).in(Meters);
+    public static final double l1 = Inches.of(1.0).in(Meters);
+    public static final double l2 = Inches.of(8).in(Meters);
+    public static final double l3 = Inches.of(17).in(Meters);
+    public static final double l4 = 1.28;
+    public static final double hp = Inches.of(20).in(Meters);
 
 }

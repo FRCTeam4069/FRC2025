@@ -52,17 +52,17 @@ public class Elevator extends SubsystemBase {
     private double kg = ElevatorConstants.ffCoefficients.kG();
     
     public Elevator(){
-        left = new TalonFX(DeviceIDs.ELEVATOR_LEFT, "rio");
         right = new TalonFX(DeviceIDs.ELEVATOR_RIGHT, "rio");
+        left = new TalonFX(DeviceIDs.ELEVATOR_LEFT, "rio");
 
-        left.getConfigurator().apply(ElevatorConstants.leftConfig);
         right.getConfigurator().apply(ElevatorConstants.rightConfig);
+        left.getConfigurator().apply(ElevatorConstants.leftConfig);
 
-        left.setPosition(0);
         right.setPosition(0);
+        left.setPosition(0);
 
-        leftLimit = new DigitalInput(DeviceIDs.ELEVATOR_LIMIT_LEFT);
         rightLimit = new DigitalInput(DeviceIDs.ELEVATOR_LIMIT_RIGHT);
+        leftLimit = new DigitalInput(DeviceIDs.ELEVATOR_LIMIT_LEFT);
 
         pid.setTolerance(ElevatorConstants.positionTolerance, ElevatorConstants.velocityTolerance);
         
@@ -73,8 +73,8 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setPower(double power) {
-        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
         right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
+        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
     }
     
     public void drive(double power) {
@@ -127,7 +127,7 @@ public class Elevator extends SubsystemBase {
 
     public boolean atSetpoint() {
         if (pid.getSetpoint().position == 0.0) {
-            return atBottom;
+            return (atBottom || pid.atGoal());
         } else {
             return pid.atGoal();
         }
@@ -146,7 +146,9 @@ public class Elevator extends SubsystemBase {
             @Override
             public void execute() {
                 double power = pid.calculate(getPosition(), setpoint);
-                if (getPosition() < 0.06) {
+                if (getPosition() < 0.08) {
+                    power = MathUtil.clamp(power, -0.4, 1.0);
+                } else if (getPosition() < 0.12) {
                     power = MathUtil.clamp(power, -0.5, 1.0);
                 }
                 drive(power);
@@ -194,6 +196,8 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putNumber("elevator velocity", getVelocity());
         SmartDashboard.putNumber("elevator accel", getAcceleration());
         SmartDashboard.putNumber("right elevator power", right.get());
+        SmartDashboard.putNumber("left elevator power", left.get());
+        SmartDashboard.putNumber("elevator setpoint", pid.getSetpoint().position);
 
         double kp = SmartDashboard.getNumber("elevator kP", ElevatorConstants.pidCoefficients.kP());
         double ki = SmartDashboard.getNumber("elevator kI", ElevatorConstants.pidCoefficients.kI());

@@ -14,7 +14,12 @@ public class DrivetrainConstants {
 
     public static final int driveCurrentLimit = 60;
     public static final int steerCurrentLimit = 30;
-    public static final double driveConversionFactor = ((3.970 * Math.PI) * 0.0254) / 6.12;
+    public volatile static double wheelDiameter = 3.99; // 3.94in
+    //bl 3.955
+    //fl 3.9545
+    //fr 3.950
+    //br 3.945
+    public static final double driveConversionFactor = ((wheelDiameter * Math.PI) * 0.0254) / 6.75;
     public static final double steerConversionFactor = 16.8;
 
     public static final boolean driveInverted = true;
@@ -22,15 +27,15 @@ public class DrivetrainConstants {
     public static final boolean encoderInverted = true;
 
     public static final double flEncoderOffset = -0.179932;
-    public static final double frEncoderOffset = 0.487793;
+    public static final double frEncoderOffset = 0.48364295;
     public static final double blEncoderOffset = 0.425049;
-    public static final double brEncoderOffset = -0.403809;
+    public static final double brEncoderOffset = -0.4025;
 
     public static final Pigeon2Configuration gyroConfig = new Pigeon2Configuration().withMountPose(new MountPoseConfigs().withMountPoseYaw(0.0));
 
     public static final double moduleOffset = Units.inchesToMeters(10.375);
     
-    public static final double maxVelocity = Units.feetToMeters(19.3);
+    public static final double maxVelocity = Units.feetToMeters(17.6);
     public static final double maxAngularVelocity = maxVelocity / new Rotation2d(moduleOffset, moduleOffset).getRadians();
 
     public static final double angularVelocityCoefficient = 0.04;
@@ -39,8 +44,10 @@ public class DrivetrainConstants {
 
     public static RobotConfig config;
 
-    public static PIDConstants translationPIDConstants = new PIDConstants(0.1, 0.0, 0.0);
-    public static PIDConstants rotationPIDConstants = new PIDConstants(0.01, 0.0, 0.0);
+    public static PIDConstants translationPIDConstants = new PIDConstants(7.0, 0.0, 0.0);
+    public static PIDConstants rotationPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
+
+    public static double yScalar = 0.93;
 
     public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
         new Translation2d(moduleOffset, moduleOffset),
@@ -87,13 +94,21 @@ public class DrivetrainConstants {
         0.0,
         0.0,
 
-        0.6,
+        0.55,
         0.0,
         0.0,
 
-        0.18363,
-        2.1055,
-        0.26337,
+        // 0.061811,
+        // 2.311,
+        // 0.23706,
+
+        // 0.07424,
+        // 2.2829,
+        // 0.39404,
+
+        0.47,
+        2.20,
+        0.20,
         
         0.0,
         0.0,
@@ -105,13 +120,21 @@ public class DrivetrainConstants {
         0.0,
         0.0,
 
-        0.6,
+        0.55,
         0.0,
         0.0,
 
-        0.14712,
-        2.0802,
-        0.2592,
+        // 0.061811,
+        // 2.3088,
+        // 0.26326,
+
+        // 0.25117,
+        // 2.2867,
+        // 0.14551,
+
+        0.01,
+        2.14,
+        0.20,
         
         0.0,
         0.0,
@@ -123,13 +146,21 @@ public class DrivetrainConstants {
         0.0,
         0.0,
 
-        0.6,
+        0.55,
         0.0,
         0.0,
 
-        0.12528,
-        2.1116,
-        0.26834,
+        // 0.066838,
+        // 2.3095,
+        // 0.25683,
+
+        // 0.011768,
+        // 2.3304,
+        // 0.35736,
+
+        0.17,
+        2.18,
+        0.20,
         
         0.0,
         0.0,
@@ -141,13 +172,21 @@ public class DrivetrainConstants {
         0.0,
         0.0,
 
-        0.6,
+        0.55,
         0.0,
         0.0,
 
-        0.11639,
-        2.065,
-        0.30911,
+        // 0.081577,
+        // 2.3094,
+        // 0.23706,
+
+        // 0.12165,
+        // 2.2853,
+        // 0.30262,
+
+        0.00,
+        2.14,
+        0.20,
         
         0.0,
         0.0,

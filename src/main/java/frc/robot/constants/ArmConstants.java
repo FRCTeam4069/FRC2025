@@ -56,21 +56,28 @@ public class ArmConstants {
     public volatile static PIDCoefficients rollDrivePIDCoefficients = new PIDCoefficients(0.5, 0.0, 0.0);
 
     public volatile static FFCoefficients pitchFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.038);
-    public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.0);
+    public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.7);
 
-    public volatile static Constraints pitchConstraints = new Constraints(20.0, 120.0);
-    public volatile static Constraints rollConstraints = new Constraints(10.0, 100.0);
+    public volatile static Constraints pitchConstraints = new Constraints(12.0, 80.0);
+    public volatile static Constraints rollConstraints = new Constraints(6.0, 40.0);
 
-    public volatile static double pitchPositionTolerance = Degrees.of(2.0).in(Radians);
+    public volatile static double pitchPositionTolerance = Degrees.of(3.0).in(Radians);
     public volatile static double pitchVelocityTolerance = 5.0;
 
-    public volatile static double rollPositionTolerance = Degrees.of(2.0).in(Radians);
+    public volatile static double rollPositionTolerance = Degrees.of(3.0).in(Radians);
     public volatile static double rollVelocityTolerance = 5.0;
 
-    public static final double startingPosition = -122.0 * (Math.PI/180.0); // rads
-    public static final double balancePoint = 25.0 * (Math.PI/180.0); // rads
-    public static final double rotatePoint = 50.0 * (Math.PI/180.0); // rads
+    public static final double startingPosition = -119.3 * (Math.PI/180.0); // rads
+    public static final double balancePoint = 16.0 * (Math.PI/180.0); // rads
+    public static final double rotatePoint = 63.0 * (Math.PI/180.0); // rads
+    public static final double humanPlayer = -90.0 * (Math.PI/180.0); // rads
 
-    public static final double lowerLimit = -122.0 * (Math.PI/180.0); // rads
+    public static final double lowerLimit = -124.0 * (Math.PI/180.0); // rads
     public static final double upperLimit = 85.0 * (Math.PI/180.0); // rads
+
+    public static final double pitchPlaceRight = 85.0 * (Math.PI/180.0); // rads
+
+    public static final double L4Pitch = 70.0*(Math.PI/180.0); // rads
+
+    public static boolean telemetryEnabled = false;
 }

@@ -56,6 +56,55 @@ public class Arm extends SubsystemBase {
 
     private double lastPitch = 0.0;
     private double lastRoll = 0.0;
+
+    public enum ArmState {
+        HOME,
+        L1_MID,
+        L2_MID,
+        L3_MID,
+        L4_MID,
+        L1_PLACE,
+        L2_PLACE,
+        L3_PLACE,
+        L4_PLACE,
+        HP
+    }
+
+    private ArmState state = ArmState.HOME;
+    public ArmState getState() {
+        return state;
+    }
+    public Command setState(ArmState state) {
+        return new InstantCommand(() -> this.state = state);
+    }
+    public static ArmState toPlace(ArmState state) {
+        switch (state) {
+            case L1_MID:
+                return ArmState.L1_PLACE;
+            case L2_MID:
+                return ArmState.L2_PLACE;
+            case L3_MID:
+                return ArmState.L3_PLACE;
+            case L4_MID:
+                return ArmState.L4_PLACE;
+            default:
+                return state;
+        }
+    }
+    public static ArmState toMid(ArmState state) {
+        switch (state) {
+            case L1_PLACE:
+                return ArmState.L1_MID;
+            case L2_PLACE:
+                return ArmState.L2_MID;
+            case L3_PLACE:
+                return ArmState.L3_MID;
+            case L4_PLACE:
+                return ArmState.L4_MID;
+            default:
+                return state;
+        }
+    }
     
     public Arm() {
         left = new TalonFX(DeviceIDs.ARM_LEFT, "rio");
@@ -70,18 +119,24 @@ public class Arm extends SubsystemBase {
         pitchPID.setTolerance(ArmConstants.pitchPositionTolerance, ArmConstants.pitchVelocityTolerance);
         rollPID.setTolerance(ArmConstants.rollPositionTolerance, ArmConstants.rollVelocityTolerance);
 
-        SmartDashboard.putNumber("pitch kP", ArmConstants.pitchPIDCoefficients.kP());
-        SmartDashboard.putNumber("pitch kI", ArmConstants.pitchPIDCoefficients.kI());
-        SmartDashboard.putNumber("pitch kD", ArmConstants.pitchPIDCoefficients.kD());
-        SmartDashboard.putNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
-        SmartDashboard.putNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
+        pitchPID.setGoal(ArmConstants.startingPosition);
+        rollPID.setGoal(0.0);
 
-        SmartDashboard.putNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
-        SmartDashboard.putNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
+        SmartDashboard.putBoolean("arm telemetry", ArmConstants.telemetryEnabled);
+        if (ArmConstants.telemetryEnabled) {
+            SmartDashboard.putNumber("pitch kP", ArmConstants.pitchPIDCoefficients.kP());
+            SmartDashboard.putNumber("pitch kI", ArmConstants.pitchPIDCoefficients.kI());
+            SmartDashboard.putNumber("pitch kD", ArmConstants.pitchPIDCoefficients.kD());
+            SmartDashboard.putNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
+            SmartDashboard.putNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
 
-        SmartDashboard.putNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
-        SmartDashboard.putNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
-        SmartDashboard.putNumber("roll kD", ArmConstants.rollPIDCoefficients.kD());
+            SmartDashboard.putNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
+            SmartDashboard.putNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
+
+            SmartDashboard.putNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
+            SmartDashboard.putNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
+            SmartDashboard.putNumber("roll kD", ArmConstants.rollPIDCoefficients.kD());
+        }
     }
 
     public void setLeft(double speed) {
@@ -196,7 +251,7 @@ public class Arm extends SubsystemBase {
     }
 
     public void drive(double pitch, double roll) {
-        var theta = getPitch() - ArmConstants.balancePoint;
+        var theta = getPitch() - ArmConstants.balancePoint*Math.cos(getRoll());
         var thetaRoll = getRoll();
 
         var ffRoll = (kGRoll * Math.sin(thetaRoll)) * (-1.0 * kGPitch * Math.sin(theta));
@@ -206,15 +261,25 @@ public class Arm extends SubsystemBase {
         SmartDashboard.putNumber("arm ffRoll", ffRoll);
 
         var pitchOutput = pitch + ffPitch;
-        var rollOutput = roll;
+        var rollOutput = roll + ffRoll;
 
         setLeft(pitchOutput + (rollOutput/2.0));
         setRight(pitchOutput - (rollOutput/2.0));
     }
 
     public void setPosition(double pitch, double roll) {
-        double pitchOutput = pitchPID.calculate(getPitch(), pitch);
-        double rollOutput = rollPID.calculate(getRoll(), roll);
+        // double pitchOutput = pitchPID.calculate(getPitch(), pitch);
+        // double rollOutput = rollPID.calculate(getRoll(), roll);
+
+        pitchPID.setGoal(pitch);
+        rollPID.setGoal(roll);
+
+        //drive(pitchOutput, rollOutput);
+    }
+
+    public void goToSetpoint() {
+        double pitchOutput = pitchPID.calculate(getPitch());
+        double rollOutput = rollPID.calculate(getRoll());
 
         drive(pitchOutput, rollOutput);
     }
@@ -233,6 +298,10 @@ public class Arm extends SubsystemBase {
         return pitchPID.atGoal() && rollPID.atSetpoint();
     }
 
+    public boolean isStatePlacing() {
+        return state == ArmState.L1_MID || state == ArmState.L2_MID || state == ArmState.L3_MID || state == ArmState.L4_MID;
+    }
+
     public boolean canRotate() {
         return getPitch() > ArmConstants.rotatePoint;
     }
@@ -242,10 +311,11 @@ public class Arm extends SubsystemBase {
             @Override
             public void initialize() {
                 resetControllers();
+                setPosition(pitch, roll);
             }
             @Override
             public void execute() {
-                setPosition(pitch, roll);
+                //setPosition(pitch, roll);
             }
             @Override
             public void end(boolean interrupted) {
@@ -257,6 +327,32 @@ public class Arm extends SubsystemBase {
             }
         };
     }
+
+    public Command pidRoll(double roll) {
+        return new Command() {
+            @Override
+            public void initialize() {
+                rollPID.reset(getRoll(), getRollVelocity());
+                rollPID.setGoal(roll);
+            }
+            @Override
+            public void execute() {
+
+            }
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+            @Override
+            public boolean isFinished() {
+                return atPosition();
+            }
+        };
+    }
+
+    // public Command keepPosition() {
+    //     return run(() -> setPosition(pitchPID.getSetpoint().position, rollPID.getSetpoint().position));
+    // }
 
     public void stop() {
         setLeft(0.0);
@@ -281,48 +377,55 @@ public class Arm extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("left", getLeftRadians());
-        SmartDashboard.putNumber("right", getRightRadians());
-        SmartDashboard.putNumber("pitch", getPitch());
-        SmartDashboard.putNumber("roll", getRoll());
-        SmartDashboard.putNumber("pitch deg", getPitch()*180/Math.PI);
-        SmartDashboard.putNumber("roll deg", getRoll()*180/Math.PI);
+        goToSetpoint();
 
-        SmartDashboard.putNumber("pitch vel", getPitchVelocity());
-        SmartDashboard.putNumber("pitch acceleration", getPitchAcceleration());
-        
-        SmartDashboard.putNumber("roll vel", getRollVelocity());
-        SmartDashboard.putNumber("roll acceleration", getRollAcceleration());
+        SmartDashboard.putString("arm state", getState().name());
+        ArmConstants.telemetryEnabled = SmartDashboard.getBoolean("arm telemetry", ArmConstants.telemetryEnabled);
+        if (ArmConstants.telemetryEnabled) {
+            SmartDashboard.putNumber("left", getLeftRadians());
+            SmartDashboard.putNumber("right", getRightRadians());
+            SmartDashboard.putNumber("pitch", getPitch());
+            SmartDashboard.putNumber("roll", getRoll());
+            SmartDashboard.putNumber("pitch deg", getPitch()*180/Math.PI);
+            SmartDashboard.putNumber("roll deg", getRoll()*180/Math.PI);
 
-        double pitchKP = SmartDashboard.getNumber("pitch kP", ArmConstants.pitchPIDCoefficients.kP());
-        double pitchKI = SmartDashboard.getNumber("pitch kI", ArmConstants.pitchPIDCoefficients.kI());
-        double pitchKD = SmartDashboard.getNumber("pitch kD", ArmConstants.pitchPIDCoefficients.kD());
-        double pitchVel = SmartDashboard.getNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
-        double pitchAccel = SmartDashboard.getNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
+            SmartDashboard.putNumber("pitch vel", getPitchVelocity());
+            SmartDashboard.putNumber("pitch acceleration", getPitchAcceleration());
+            
+            SmartDashboard.putNumber("roll vel", getRollVelocity());
+            SmartDashboard.putNumber("roll acceleration", getRollAcceleration());
 
-        double pitchKG = SmartDashboard.getNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
+            double pitchKP = SmartDashboard.getNumber("pitch kP", ArmConstants.pitchPIDCoefficients.kP());
+            double pitchKI = SmartDashboard.getNumber("pitch kI", ArmConstants.pitchPIDCoefficients.kI());
+            double pitchKD = SmartDashboard.getNumber("pitch kD", ArmConstants.pitchPIDCoefficients.kD());
+            double pitchVel = SmartDashboard.getNumber("pitch max vel", ArmConstants.pitchConstraints.maxVelocity);
+            double pitchAccel = SmartDashboard.getNumber("pitch max accel", ArmConstants.pitchConstraints.maxAcceleration);
 
-        double rollKP = SmartDashboard.getNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
-        double rollKI = SmartDashboard.getNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
-        double rollKD = SmartDashboard.getNumber("roll kD", ArmConstants.rollPIDCoefficients.kD());
-        double rollVel = SmartDashboard.getNumber("roll max vel", ArmConstants.rollConstraints.maxVelocity);
-        double rollAccel = SmartDashboard.getNumber("roll max accel", ArmConstants.rollConstraints.maxAcceleration);
+            double pitchKG = SmartDashboard.getNumber("pitch kG", ArmConstants.pitchFFCoefficients.kG());
 
-        double rollKG = SmartDashboard.getNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
+            double rollKP = SmartDashboard.getNumber("roll kP", ArmConstants.rollPIDCoefficients.kP());
+            double rollKI = SmartDashboard.getNumber("roll kI", ArmConstants.rollPIDCoefficients.kI());
+            double rollKD = SmartDashboard.getNumber("roll kD", ArmConstants.rollPIDCoefficients.kD());
+            double rollVel = SmartDashboard.getNumber("roll max vel", ArmConstants.rollConstraints.maxVelocity);
+            double rollAccel = SmartDashboard.getNumber("roll max accel", ArmConstants.rollConstraints.maxAcceleration);
 
-        ArmConstants.pitchPIDCoefficients = new PIDCoefficients(pitchKP, pitchKI, pitchKD);
-        pitchPID.setPID(pitchKP, pitchKI, pitchKD);
+            double rollKG = SmartDashboard.getNumber("roll kG", ArmConstants.rollFFCoefficients.kG());
 
-        ArmConstants.rollPIDCoefficients = new PIDCoefficients(rollKP, rollKI, rollKD);
-        rollPID.setPID(rollKP, rollKI, rollKD);
+            ArmConstants.pitchPIDCoefficients = new PIDCoefficients(pitchKP, pitchKI, pitchKD);
+            pitchPID.setPID(pitchKP, pitchKI, pitchKD);
 
-        ArmConstants.pitchFFCoefficients = new FFCoefficients(0.0, pitchKG, 0.0, 0.0);
-        kGPitch = pitchKG;
+            ArmConstants.rollPIDCoefficients = new PIDCoefficients(rollKP, rollKI, rollKD);
+            rollPID.setPID(rollKP, rollKI, rollKD);
 
-        ArmConstants.rollFFCoefficients = new FFCoefficients(0.0, rollKG, 0.0, 0.0);
-        kGRoll = rollKG;
+            ArmConstants.pitchFFCoefficients = new FFCoefficients(0.0, pitchKG, 0.0, 0.0);
+            kGPitch = pitchKG;
 
-        ArmConstants.pitchConstraints = new Constraints(pitchVel, pitchAccel);
-        ArmConstants.rollConstraints = new Constraints(rollVel, rollAccel);
+            ArmConstants.rollFFCoefficients = new FFCoefficients(0.0, rollKG, 0.0, 0.0);
+            kGRoll = rollKG;
+
+            ArmConstants.pitchConstraints = new Constraints(pitchVel, pitchAccel);
+            ArmConstants.rollConstraints = new Constraints(rollVel, rollAccel);
+
+        }
     }
 }

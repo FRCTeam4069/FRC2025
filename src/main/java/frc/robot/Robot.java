@@ -8,6 +8,8 @@ import java.util.Map;
 
 import org.littletonrobotics.urcl.URCL;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,10 +34,10 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
 
-        DataLogManager.start();
-        URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
+        // DataLogManager.start();
+        // URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
 
-        //addPeriodic(() -> RobotContainer.drive.updateModuleRotation(), 0.01);
+        FollowPathCommand.warmupCommand().schedule();
     }
 
 
@@ -70,6 +72,9 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        m_robotContainer.drive.removeDefaultCommand();
+        m_robotContainer.elevator.removeDefaultCommand();
+        m_robotContainer.arm.removeDefaultCommand();
         
         // schedule the autonomous command (example)
         if (m_autonomousCommand != null) {
@@ -87,9 +92,15 @@ public class Robot extends TimedRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
+
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+
+        m_robotContainer.drive.setDefaultCommand(m_robotContainer.defaultDriveCommand());
+        m_robotContainer.elevator.setDefaultCommand(m_robotContainer.defaultElevatorCommand());
+        m_robotContainer.arm.setDefaultCommand(m_robotContainer.defaultArmCommand());
+        m_robotContainer.manipulator.setDefaultCommand(m_robotContainer.defaultManipulatorCommand());
     }
 
     /** This function is called periodically during operator control. */

@@ -46,6 +46,8 @@ public class SwerveDrivetrain extends SubsystemBase {
     
     private SwerveModuleState[] desiredState = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
+    public Pose2d startingPose = new Pose2d();
+
     public SwerveDrivetrain() {
         fl = new SwerveModule(DrivetrainConstants.flConfig, DrivetrainConstants.flCoefficients);
 
@@ -82,6 +84,7 @@ public class SwerveDrivetrain extends SubsystemBase {
             }, 
             this);
         
+        SmartDashboard.putNumber("drive wheel diameter", DrivetrainConstants.wheelDiameter);
     }
 
     public SysIdRoutine driveSysIdRoutine = new SysIdRoutine(
@@ -117,6 +120,15 @@ public class SwerveDrivetrain extends SubsystemBase {
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return kinematics.toChassisSpeeds(getModuleStates());
     }
+
+    /*
+    public ChassisSpeeds getBetterRobotRelativeSpeeds() {
+        var realSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(getRobotRelativeSpeeds(), getRotation2d());
+        var newSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(realSpeeds.vxMetersPerSecond, realSpeeds.vyMetersPerSecond*DrivetrainConstants.yScalar, realSpeeds.omegaRadiansPerSecond), getRotation2d());
+        
+        return newSpeeds;
+    }
+    */
 
     private SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -168,13 +180,23 @@ public class SwerveDrivetrain extends SubsystemBase {
         setModuleStates(kinematics.toSwerveModuleStates(speeds));
     }
 
+    public void fakeDrive(ChassisSpeeds speeds) {
+        speeds = angularVelocitySkewCorrection(speeds);
+        var moduleStates = kinematics.toSwerveModuleStates(speeds);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, DrivetrainConstants.maxVelocity);
+        desiredState = moduleStates;
+        fl.fakeSetDesiredState(moduleStates[0]);
+        fr.fakeSetDesiredState(moduleStates[1]);
+        bl.fakeSetDesiredState(moduleStates[2]);
+        br.fakeSetDesiredState(moduleStates[3]);
+    }
+
     public void fieldOrientedDrive(ChassisSpeeds speeds) {
         drive(ChassisSpeeds.fromFieldRelativeSpeeds(speeds, getRotation2d()));
     }
 
-    public ChassisSpeeds angularVelocitySkewCorrection(ChassisSpeeds robotRelativeVelocity)
-    {
-
+    public ChassisSpeeds angularVelocitySkewCorrection(ChassisSpeeds robotRelativeVelocity) {
         var rawAngularVelocity = getAngularVelocity();
         var angularVelocity = new Rotation2d(rawAngularVelocity * DrivetrainConstants.angularVelocityCoefficient);
         if (angularVelocity.getRadians() != 0.0) {
@@ -206,8 +228,18 @@ public class SwerveDrivetrain extends SubsystemBase {
         });
     }
 
+    public Command stopCommand() {
+        return run(() -> stop());
+    }
+
+    public void stop() {
+        drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+    }
+
     public Pose2d getPose() {
-        return poseEstimator.getPoseMeters();
+        var pose = poseEstimator.getPoseMeters();
+        // return new Pose2d(pose.getX(), startingPose.getY()-DrivetrainConstants.yScalar*(startingPose.getY()-pose.getY()), pose.getRotation());
+        return pose;
     }
 
     public void resetHeading(Rotation2d newHeading) {
@@ -216,7 +248,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);
-        
+        startingPose = pose;
     }
 
     public Command resetHeadingCommand() {
@@ -232,7 +264,16 @@ public class SwerveDrivetrain extends SubsystemBase {
         posePublisher.set(getPose());
         var speeds = getRobotRelativeSpeeds();
         speedsPublisher.set(speeds);
-        SmartDashboard.putNumber("max speed", Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+        // SmartDashboard.putNumber("max speed", Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+
+        // var wheelDiameter = SmartDashboard.getNumber("drive wheel diameter", DrivetrainConstants.wheelDiameter);
+
+        // DrivetrainConstants.wheelDiameter = wheelDiameter;
+
+        // fl.setDriveConversionFactor(((wheelDiameter * Math.PI) * 0.0254) / 6.75);
+        // fr.setDriveConversionFactor(((wheelDiameter * Math.PI) * 0.0254) / 6.75);
+        // bl.setDriveConversionFactor(((wheelDiameter * Math.PI) * 0.0254) / 6.75);
+        // br.setDriveConversionFactor(((wheelDiameter * Math.PI) * 0.0254) / 6.75);
 
     }
 
