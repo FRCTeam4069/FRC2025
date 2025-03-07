@@ -99,17 +99,17 @@ public class FieldCentricDrive extends Command {
         } else if (humanPlayerRight.getAsBoolean()) {
             outputSpeeds.omegaRadiansPerSecond = headingController.calculate(drive.getRotation2d().getRadians(), DrivetrainConstants.humanPlayerRight);
         } else if (snapHeading.getAsBoolean()) {
-            double currentHeading = drive.getRotation2d().getRadians();
-            double closestAngle = DrivetrainConstants.snapAngles[0];
-            double closestDistance = Math.abs(currentHeading - DrivetrainConstants.snapAngles[0]);
-            for (double angle : DrivetrainConstants.snapAngles) {
-                double distance = Math.abs(currentHeading - angle);
+            var currentHeading = drive.getRotation2d();
+            var closestAngle = DrivetrainConstants.snapAngles[0];
+            double closestDistance = Math.abs(currentHeading.minus(closestAngle).getRadians());
+            for (var angle : DrivetrainConstants.snapAngles) {
+                double distance = Math.abs(currentHeading.minus(angle).getRadians());
                 if (distance < closestDistance) {
                     closestDistance = distance;
                     closestAngle = angle;
                 }
             }
-            outputSpeeds.omegaRadiansPerSecond = headingController.calculate(currentHeading, closestAngle);
+            outputSpeeds.omegaRadiansPerSecond = headingController.calculate(currentHeading.getRadians(), closestAngle.getRadians());
 
         }
 

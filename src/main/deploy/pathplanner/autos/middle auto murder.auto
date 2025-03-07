@@ -41,6 +41,18 @@
               }
             ]
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle auto p2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stop drivetrain"
+          }
         }
       ]
     }

@@ -48,13 +48,14 @@ public class DrivetrainConstants {
     public static final double humanPlayerLeft = Degrees.of(-52.5).in(Radians);
     public static final double humanPlayerRight = Degrees.of(52.5).in(Radians);
 
-    public static final double[] snapAngles = new double[]{
-        0.0, 
-        Degrees.of(60.0).in(Radians),
-        Degrees.of(120.0).in(Radians), 
-        Degrees.of(180.0).in(Radians), 
-        Degrees.of(-120.0).in(Radians), 
-        Degrees.of(-60.0).in(Radians)};
+    public static final Rotation2d[] snapAngles = new Rotation2d[]{
+        Rotation2d.fromDegrees(0.0),
+        Rotation2d.fromDegrees(60.0),
+        Rotation2d.fromDegrees(120.0),
+        Rotation2d.fromDegrees(180.0),
+        Rotation2d.fromDegrees(-120.0),
+        Rotation2d.fromDegrees(-60.0)
+    };
 
     public static RobotConfig config;
 
@@ -83,7 +84,7 @@ public class DrivetrainConstants {
         double kG
     ) {}
 
-    public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(15.0, 0.0, 0.0);
+    public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
 
     public record ModuleCoefficients(
         double steerKS,

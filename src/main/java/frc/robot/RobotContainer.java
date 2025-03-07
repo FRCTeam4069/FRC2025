@@ -95,8 +95,8 @@ public class RobotContainer {
     private void configureBindings() {
         controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
-        controller0.povLeft().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(1.0)));
-        controller0.povRight().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(-1.0)));
+        controller0.povLeft().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(-1.0)));
+        controller0.povRight().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(1.0)));
 
         controller1.b().onTrue(humanPlayer());
         // controller1.y().onTrue(manipulator.stopIntake());
