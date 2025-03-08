@@ -58,7 +58,7 @@ public class ArmConstants {
     public volatile static FFCoefficients pitchFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.038);
     public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.7);
 
-    public volatile static Constraints pitchConstraints = new Constraints(12.0, 80.0);
+    public volatile static Constraints pitchConstraints = new Constraints(10.0, 50.0);
     public volatile static Constraints rollConstraints = new Constraints(6.0, 40.0);
 
     public volatile static double pitchPositionTolerance = Degrees.of(3.0).in(Radians);

@@ -56,9 +56,9 @@ public class ElevatorConstants {
 
     public static final double upperLimit = 1.34;
     public static final double l1 = Inches.of(1.0).in(Meters);
-    public static final double l2 = Inches.of(8).in(Meters);
-    public static final double l3 = Inches.of(17).in(Meters);
-    public static final double l4 = 1.31;
+    public static final double l2 = 0.116; //Inches.of(8).in(Meters);
+    public static final double l3 = 0.50; // Inches.of(24).in(Meters);
+    public static final double l4 = 1.32;
     public static final double hp = Inches.of(22.5).in(Meters);
     public static final double ballL2 = Inches.of(3).in(Meters);
     public static final double ballL3 = Inches.of(18).in(Meters);

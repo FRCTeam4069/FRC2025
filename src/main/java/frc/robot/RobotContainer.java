@@ -13,6 +13,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -103,6 +104,7 @@ public class RobotContainer {
         // controller1.x().onTrue(manipulator.kickLeft());
         // controller1.b().onTrue(manipulator.kickRight());
         controller1.a().onTrue(home());
+        controller1.povDown().onTrue(flipArm());
         controller1.povLeft().onTrue(midL2());
         controller1.povRight().onTrue(midL3());
         controller1.povUp().onTrue(midL4());
@@ -352,6 +354,10 @@ public class RobotContainer {
             ), () -> arm.getState());
     }
 
+    private Command flipArm() {
+        return Commands.sequence(arm.setState(ArmState.L1_MID), arm.pid(Units.degreesToRadians(80.0), 0));
+    }
+
     private Command ballPickupL2FromEverywhere() {
         return Commands.parallel(
             manipulator.runIntake(),
@@ -394,8 +400,8 @@ public class RobotContainer {
                     arm.setState(Arm.toPlace(initialState)),
                     arm.pidRoll(80.0*(Math.PI/180)),
                     new WaitCommand(0.2),
-                    arm.pid(35.0*(Math.PI/180), 83.0*(Math.PI/180)),
-                    manipulator.kickLeft()
+                    arm.pid(35.0*(Math.PI/180), 83.0*(Math.PI/180))
+                    //manipulator.kickLeft()
                 )
             ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
@@ -407,8 +413,8 @@ public class RobotContainer {
                     // arm.pid(ArmConstants.rotatePoint, -83.0*(Math.PI/180)),
                     arm.pidRoll(-80.0*(Math.PI/180)),
                     new WaitCommand(0.2),
-                    arm.pid(35.0*(Math.PI/180), -83.0*(Math.PI/180)),
-                    manipulator.kickRight()
+                    arm.pid(35.0*(Math.PI/180), -83.0*(Math.PI/180))
+                    // manipulator.kickRight()
                 )
             ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }

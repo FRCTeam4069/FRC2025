@@ -20,7 +20,7 @@ public class ManipulatorConstants {
     public static final double intakePower = 0.99;
     public static final double intakeHoldPower = 0.5;
     public static final double kickerPlacePower = 1.0;
-    public static final double kickerPlaceTime = 1.0;
+    public static final double kickerPlaceTime = 1.3;
     // 1.875in edge to edge white wheel minimum distance
 
     public static SparkMaxConfig intakeConfig = new SparkMaxConfig();

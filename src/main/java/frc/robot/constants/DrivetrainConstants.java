@@ -18,7 +18,7 @@ public class DrivetrainConstants {
     public static final int driveCurrentLimit = 60;
     public static final int steerCurrentLimit = 30;
     public volatile static double wheelDiameter = 3.99; // 3.94in
-    //bl 3.955
+    //bl 3.955 -> 3.912
     //fl 3.9545
     //fr 3.950
     //br 3.945
@@ -63,6 +63,11 @@ public class DrivetrainConstants {
     public static PIDConstants rotationPIDConstants = new PIDConstants(4.0, 0.0, 0.0);
 
     public static double yScalar = 0.93;
+
+    /*
+     * 26ft 5in x 57ft 6(7/8)in
+     * 8.052m x 17.548m
+     */
 
     public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
         new Translation2d(moduleOffset, moduleOffset),
