@@ -11,6 +11,7 @@ import org.littletonrobotics.urcl.URCL;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -34,7 +35,8 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
 
-        // DataLogManager.start();
+        DataLogManager.start();
+        DriverStation.startDataLog(DataLogManager.getLog());
         // URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
 
         FollowPathCommand.warmupCommand().schedule();
@@ -75,6 +77,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.drive.removeDefaultCommand();
         m_robotContainer.elevator.removeDefaultCommand();
         m_robotContainer.arm.removeDefaultCommand();
+        m_robotContainer.drive.driverMode(false);
         
         // schedule the autonomous command (example)
         if (m_autonomousCommand != null) {
@@ -92,6 +95,7 @@ public class Robot extends TimedRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
+        m_robotContainer.drive.driverMode(true);
 
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();

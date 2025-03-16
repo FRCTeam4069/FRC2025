@@ -383,6 +383,8 @@ public class Arm extends SubsystemBase {
         goToSetpoint();
 
         SmartDashboard.putString("arm state", getState().name());
+        SmartDashboard.putNumber("pitch deg", getPitch()*180/Math.PI);
+        SmartDashboard.putNumber("roll deg", getRoll()*180/Math.PI);
         ArmConstants.telemetryEnabled = SmartDashboard.getBoolean("arm telemetry", ArmConstants.telemetryEnabled);
         if (ArmConstants.telemetryEnabled) {
             SmartDashboard.putNumber("left", getLeftRadians());

@@ -10,19 +10,28 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.*;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,18 +44,70 @@ public class SwerveDrivetrain extends SubsystemBase {
     private Pigeon2 gyro;
     private SwerveDriveKinematics kinematics = DrivetrainConstants.kinematics;
     private SwerveDriveOdometry poseEstimator;
+    private SwerveDrivePoseEstimator visionPoseEstimator;
     private StructArrayPublisher<SwerveModuleState> swervePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("SwerveModuleStates", SwerveModuleState.struct).publish();
     private StructArrayPublisher<SwerveModuleState> desiredSwervePublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("DesiredSwerveModuleStates", SwerveModuleState.struct).publish();
     private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("RobotPose", Pose2d.struct).publish();
+    private StructPublisher<Pose2d> visionPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("VisionPose", Pose2d.struct).publish();
     private StructPublisher<ChassisSpeeds> speedsPublisher = NetworkTableInstance.getDefault()
         .getStructTopic("RobotSpeeds", ChassisSpeeds.struct).publish();
+    private StructPublisher<Pose3d> vision3dPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("VisionPose3d", Pose3d.struct).publish();
+    private StructPublisher<Pose3d> rightVision3dPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("rightVisionPose3d", Pose3d.struct).publish();
     
     private SwerveModuleState[] desiredState = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
-    public Pose2d startingPose = new Pose2d();
+    public Pose2d startingPose = new Pose2d(7.210, 0.490, Rotation2d.fromDegrees(90.0));
+
+    // private Field2d field = new Field2d();
+
+    // private Vision vision = new Vision(() -> getVisionPose(), field);
+
+    // private final Transform3d leftFrontTransform = new Transform3d(
+    //             new Translation3d(Units.inchesToMeters(7.0),
+    //                             Units.inchesToMeters(7.875),
+    //                             Units.inchesToMeters(19.875)),
+    //             new Rotation3d(0, Math.toRadians(10.0), Math.toRadians(-20)));
+
+    // private final Transform3d rightFrontTransform = new Transform3d(
+    //             new Translation3d(Units.inchesToMeters(7.0),
+    //                             Units.inchesToMeters(-7.875),
+    //                             Units.inchesToMeters(19.875)),
+    //             new Rotation3d(0, Math.toRadians(10.0), Math.toRadians(20)));
+
+    private final Transform3d leftFrontTransform = new Transform3d(
+                new Translation3d(Units.inchesToMeters(5.0),
+                                Units.inchesToMeters(7.875),
+                                Units.inchesToMeters(19.875)),
+                new Rotation3d(Math.toRadians(-3.9), Math.toRadians(17.9), Math.toRadians(-20)));
+
+    private final Transform3d rightFrontTransform = new Transform3d(
+                new Translation3d(Units.inchesToMeters(7.0),
+                                Units.inchesToMeters(-7.875),
+                                Units.inchesToMeters(19.875)),
+                new Rotation3d(Math.toRadians(0.7), Math.toRadians(16.0), Math.toRadians(20)));
+
+    private final Transform3d leftBackTransform = new Transform3d(
+                new Translation3d(Units.inchesToMeters(0.375),
+                                Units.inchesToMeters(10.875),
+                                Units.inchesToMeters(11.875)),
+                new Rotation3d(Math.toRadians(-8.0), Math.toRadians(-41.0), Math.toRadians(-164.8)));
+
+    private final Transform3d rightBackTransform = new Transform3d(
+                new Translation3d(Units.inchesToMeters(0.375),
+                                Units.inchesToMeters(-10.875),
+                                Units.inchesToMeters(11.875)),
+                new Rotation3d(Math.toRadians(12.0), Math.toRadians(-39.8), Math.toRadians(165.0)));
+
+    private VisionBetter visionLF;
+    private VisionBetter visionRF;
+    private VisionBetter visionLB;
+    private VisionBetter visionRB;
 
     public SwerveDrivetrain() {
         fl = new SwerveModule(DrivetrainConstants.flConfig, DrivetrainConstants.flCoefficients);
@@ -60,7 +121,12 @@ public class SwerveDrivetrain extends SubsystemBase {
         gyro = new Pigeon2(0, "rio");
         gyro.getConfigurator().apply(DrivetrainConstants.gyroConfig);
 
-        poseEstimator = new SwerveDriveOdometry(kinematics, getRawRotation2d(), getModulePositions(), new Pose2d());
+        poseEstimator = new SwerveDriveOdometry(kinematics, getRawRotation2d(), getModulePositions(), startingPose);
+        visionPoseEstimator = new SwerveDrivePoseEstimator(kinematics, getRawRotation2d(), getModulePositions(), startingPose, VecBuilder.fill(0.8, 0.8, 0.05), VecBuilder.fill(0.5, 0.5, 2.0));
+        visionLF = new VisionBetter("Left_Front", leftFrontTransform, startingPose);
+        visionRF = new VisionBetter("Right_Front", rightFrontTransform, startingPose);
+        visionLB = new VisionBetter("Left_Side", leftBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
+        visionRB = new VisionBetter("Right_Side", rightBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
 
         try{
             DrivetrainConstants.config = RobotConfig.fromGUISettings();
@@ -237,10 +303,14 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        var pose = poseEstimator.getPoseMeters();
-        // return new Pose2d(pose.getX(), startingPose.getY()-DrivetrainConstants.yScalar*(startingPose.getY()-pose.getY()), pose.getRotation());
+        //var pose = poseEstimator.getPoseMeters();
+        var pose = visionPoseEstimator.getEstimatedPosition();
         return pose;
     }
+
+    // public Pose2d getVisionPose() {
+    //     return visionPoseEstimator.getEstimatedPosition();
+    // }
 
     public void resetHeading(Rotation2d newHeading) {
         resetPose(new Pose2d(getPose().getTranslation(), newHeading));
@@ -248,6 +318,7 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);
+        visionPoseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);
         startingPose = pose;
     }
 
@@ -259,13 +330,52 @@ public class SwerveDrivetrain extends SubsystemBase {
         return runOnce(() -> resetHeading(getRotation2d().plus(heading)));
     }
 
+    public void driverMode(boolean mode) {
+        // vision.driverMode(mode);
+    }
+
+    public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> visionMeasurementStdDevs) {
+        visionPoseEstimator.addVisionMeasurement(pose, timestamp, visionMeasurementStdDevs);
+    }
+
+    public void addVisionMeasurement(Pose2d pose, double timestamp) {
+        visionPoseEstimator.addVisionMeasurement(pose, timestamp);
+    }
+
     @Override
     public void periodic() {
         poseEstimator.update(getRawRotation2d(), getModulePositions());
+        visionPoseEstimator.update(getRawRotation2d(), getModulePositions());
+        // vision.updatePoseEstimation(this);
 
+        var estimatedLF = visionLF.getEstimatedGlobalPose();
+        if (estimatedLF.isPresent()) {
+            // vision3dPosePublisher.set(estimatedLF.get().estimatedPose);
+            addVisionMeasurement(estimatedLF.get().estimatedPose.toPose2d(), estimatedLF.get().timestampSeconds, visionLF.getStdDeviations());
+        }
+
+        var estimatedRF = visionRF.getEstimatedGlobalPose();
+        if (estimatedRF.isPresent()) {
+            //rightVision3dPosePublisher.set(estimatedRF.get().estimatedPose);
+            addVisionMeasurement(estimatedRF.get().estimatedPose.toPose2d(), estimatedRF.get().timestampSeconds, visionRF.getStdDeviations());
+        }
+
+        var estimatedLB = visionLB.getEstimatedGlobalPose();
+        if (estimatedLB.isPresent()) {
+            vision3dPosePublisher.set(estimatedLB.get().estimatedPose);
+            addVisionMeasurement(estimatedLB.get().estimatedPose.toPose2d(), estimatedLB.get().timestampSeconds, visionLB.getStdDeviations());
+        }
+
+        var estimatedRB = visionRB.getEstimatedGlobalPose();
+        if (estimatedRB.isPresent()) {
+            rightVision3dPosePublisher.set(estimatedRB.get().estimatedPose);
+            addVisionMeasurement(estimatedRB.get().estimatedPose.toPose2d(), estimatedRB.get().timestampSeconds, visionRB.getStdDeviations());
+        }
+
+        visionPosePublisher.set(visionPoseEstimator.getEstimatedPosition());
         swervePublisher.set(getModuleStates());
         desiredSwervePublisher.set(desiredState);
-        posePublisher.set(getPose());
+        posePublisher.set(poseEstimator.getPoseMeters());
         var speeds = getRobotRelativeSpeeds();
         speedsPublisher.set(speeds);
         // SmartDashboard.putNumber("max speed", Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
