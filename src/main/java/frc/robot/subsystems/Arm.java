@@ -9,11 +9,14 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
@@ -43,6 +46,7 @@ import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 public class Arm extends SubsystemBase {
     private final TalonFX left;
     private final TalonFX right;
+    private final CANcoder encoder;
 
     private DutyCycleOut leftOutput = new DutyCycleOut(0.0);
     private DutyCycleOut rightOutput = new DutyCycleOut(0.0);
@@ -57,17 +61,16 @@ public class Arm extends SubsystemBase {
     private double lastPitch = 0.0;
     private double lastRoll = 0.0;
 
+    public boolean placeLeft = true;
+
     public enum ArmState {
-        HOME,
-        L1_MID,
-        L2_MID,
-        L3_MID,
-        L4_MID,
-        L1_PLACE,
-        L2_PLACE,
-        L3_PLACE,
-        L4_PLACE,
+        HOME, // game piece loaded, arm(rotatePoint, +-90deg), elevator(0)
+        L1,
+        L2,
+        L3,
+        L4,
         HP,
+        BALL_FLOOR_PICKUP,
         BALL_L2_PICKUP,
         BALL_L3_PICKUP,
         BALL_PLACE
@@ -80,41 +83,20 @@ public class Arm extends SubsystemBase {
     public Command setState(ArmState state) {
         return new InstantCommand(() -> this.state = state);
     }
-    public static ArmState toPlace(ArmState state) {
-        switch (state) {
-            case L1_MID:
-                return ArmState.L1_PLACE;
-            case L2_MID:
-                return ArmState.L2_PLACE;
-            case L3_MID:
-                return ArmState.L3_PLACE;
-            case L4_MID:
-                return ArmState.L4_PLACE;
-            default:
-                return state;
-        }
-    }
-    public static ArmState toMid(ArmState state) {
-        switch (state) {
-            case L1_PLACE:
-                return ArmState.L1_MID;
-            case L2_PLACE:
-                return ArmState.L2_MID;
-            case L3_PLACE:
-                return ArmState.L3_MID;
-            case L4_PLACE:
-                return ArmState.L4_MID;
-            default:
-                return state;
-        }
-    }
-    
+
     public Arm() {
         left = new TalonFX(DeviceIDs.ARM_LEFT, "rio");
         right = new TalonFX(DeviceIDs.ARM_RIGHT, "rio");
+        encoder = new CANcoder(DeviceIDs.MANIPULATOR_ENCODER, "rio");
 
         left.getConfigurator().apply(ArmConstants.leftConfig);
         right.getConfigurator().apply(ArmConstants.rightConfig);
+
+        MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
+        encoderConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+        encoderConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
+        encoderConfig.MagnetOffset = 0.3327;
+        encoder.getConfigurator().apply(encoderConfig);
 
         left.setPosition(Radians.of(ArmConstants.startingPosition).in(Rotations));
         right.setPosition(Radians.of(ArmConstants.startingPosition).in(Rotations));
@@ -229,7 +211,14 @@ public class Arm extends SubsystemBase {
      * @return rads, 0 is with manipulator down so it can pick up. CCW is positive
      */
     public double getRoll() {
-        return (getLeftRadians() - getRightRadians())/2.0;
+        var status = encoder.getAbsolutePosition();
+
+        if (status.getStatus().isOK()) {
+            return status.getValueAsDouble() * 2.0 * Math.PI;
+        } else {
+            return (getLeftRadians() - getRightRadians())/2.0;
+        }
+
     }
 
     /**
@@ -301,8 +290,8 @@ public class Arm extends SubsystemBase {
         return pitchPID.atGoal() && rollPID.atSetpoint();
     }
 
-    public boolean isStatePlacing() {
-        return state == ArmState.L1_MID || state == ArmState.L2_MID || state == ArmState.L3_MID || state == ArmState.L4_MID;
+    public double getPlaceRoll() {
+        return placeLeft ? -ArmConstants.placeRoll : ArmConstants.placeRoll;
     }
 
     public boolean canRotate() {

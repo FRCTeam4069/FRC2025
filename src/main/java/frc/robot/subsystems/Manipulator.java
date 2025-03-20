@@ -4,44 +4,169 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+
+import au.grapplerobotics.ConfigurationFailedException;
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.spark.SparkMax;
-
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.DeviceIDs;
 import frc.robot.constants.ManipulatorConstants;
 
 public class Manipulator extends SubsystemBase {
-    private final SparkMax intake;
-    private final SparkMax kicker;
+    private final TalonFX motor;
+    private final DutyCycleOut output = new DutyCycleOut(0.0);
+    private final LaserCan leftSensor;
+    private final LaserCan rightSensor;
+    private double left = 10000;
+    private double right = 10000;
 
     public Manipulator() {
-        intake = new SparkMax(DeviceIDs.MANIPULATOR_INTAKE, MotorType.kBrushless);
-        kicker = new SparkMax(DeviceIDs.MANIPULATOR_KICKER, MotorType.kBrushless);
+        motor = new TalonFX(DeviceIDs.MANIPULATOR, "rio");
 
-        intake.configure(ManipulatorConstants.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        kicker.configure(ManipulatorConstants.kickerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motor.getConfigurator().apply(ManipulatorConstants.talonConfig);
 
-        intake.getEncoder().setPosition(0.0);
-        kicker.getEncoder().setPosition(0.0);
+        motor.setPosition(0.0);
 
+        leftSensor = new LaserCan(DeviceIDs.MANIPULATOR_LEFT_LASER_CAN);
+        rightSensor = new LaserCan(DeviceIDs.MANIPULATOR_RIGHT_LASER_CAN);
+
+        Alert alert = new Alert("LaserCAN", AlertType.kError);
+
+        try {
+            leftSensor.setRangingMode(LaserCan.RangingMode.SHORT);
+            leftSensor.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 4, 4));
+            leftSensor.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+
+            rightSensor.setRangingMode(LaserCan.RangingMode.SHORT);
+            rightSensor.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 4, 4));
+            rightSensor.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+        } catch (ConfigurationFailedException e) {
+            System.out.println("Configuration failed! " + e);
+            alert.set(true);
+            alert.setText("LaserCAN bad" + e.getMessage());
+        }
+
+        alert.close();
+    }
+
+    private double getLeftSensor() {
+        Measurement measurement = leftSensor.getMeasurement();
+        if (measurement == null) {
+            return left;
+        }
+
+        if (measurement.status == LaserCan.LASERCAN_STATUS_OUT_OF_BOUNDS) {
+            return 10000;
+        }
+
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        } 
+
+        return left;
+    }
+
+    private double getRightSensor() {
+        Measurement measurement = rightSensor.getMeasurement();
+        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+            return measurement.distance_mm;
+        } 
+
+        return right;
+    }
+
+    public boolean isLeft() {
+        return left < 10.0;
+    }
+
+    public boolean isRight() {
+        return right < 10.0;
+    }
+
+    public double getLeftDistance() {
+        return left;
+    }
+
+    public double getRightDistance() {
+        return right;
+    }
+
+    public boolean isEmpty() {
+        return (getLeftDistance() > ManipulatorConstants.emptyDistance) && (getRightDistance() > ManipulatorConstants.emptyDistance);
+    }
+
+    public boolean isFull() {
+        return isLeft() || isRight();
+    }
+
+    public boolean isCentered() {
+        return isLeft() && isRight();
+    }
+
+    /**
+     * 
+     * @return true if left
+     */
+    public boolean getPlaceDirection() {
+        if (isLeft() && !isRight()) {
+            return true;
+        }
+        return false;
     }
 
     public void setIntake(double power) {
-        intake.set(power);
+        motor.setControl(output.withOutput(power));
     }
 
-    public void setKicker(double power) {
-        kicker.set(power);
+    public void stop() {
+        motor.stopMotor();
+    }
+
+    public Command intakeUntilHolding() {
+        return new Command() {
+            @Override
+            public void execute() {
+                setIntake(ManipulatorConstants.intakePower);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return isLeft() || isRight();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
+    }
+
+    public Command outtakeUntilRelease() {
+        return new Command() {
+            @Override
+            public void execute() {
+                setIntake(ManipulatorConstants.outtakePower);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return isEmpty();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
     }
 
     public Command runIntake() {
@@ -52,47 +177,40 @@ public class Manipulator extends SubsystemBase {
         return runOnce(() -> setIntake(0.0));
     }
 
-    public Command runKicker(DoubleSupplier power) {
-        return run(() -> setKicker(power.getAsDouble()));
-    }
-
     public Command defaultCommand(DoubleSupplier power) {
         return new Command() {
             @Override
             public void execute() {
-                setKicker(power.getAsDouble());
-                // if (Math.abs(power.getAsDouble()) > 0.05) {
-                //     setIntake(ManipulatorConstants.intakeHoldPower);
-                // }
+                
             }
         };
     }
 
-    public Command kickLeft() {
-        return Commands.sequence(
-            new InstantCommand(() -> setIntake(0.6)),
-            new InstantCommand(() -> setKicker(-ManipulatorConstants.kickerPlacePower)), 
-            Commands.waitSeconds(ManipulatorConstants.kickerPlaceTime), 
-            new InstantCommand(() -> setIntake(0.0)),
-            new InstantCommand(() -> setKicker(0.0)));
-    }
-
-    public Command kickRight() {
-        return Commands.sequence(
-            new InstantCommand(() -> setIntake(0.6)),
-            new InstantCommand(() -> setKicker(ManipulatorConstants.kickerPlacePower)), 
-            Commands.waitSeconds(ManipulatorConstants.kickerPlaceTime), 
-            new InstantCommand(() -> setIntake(0.0)),
-            new InstantCommand(() -> setKicker(0.0)));
-    }
-
     public Command shoot() {
-        return runOnce(() -> setIntake(-1.0));
+        return new Command() {
+            @Override
+            public void execute() {
+                setIntake(-1.0);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return isEmpty();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
     }
-        
 
     @Override
     public void periodic() {
-        
+        left = getLeftSensor();
+        right = getRightSensor();
+
+        SmartDashboard.putNumber("left sensor", getLeftDistance());
+        SmartDashboard.putNumber("right sensor", getRightDistance());
     }
 }

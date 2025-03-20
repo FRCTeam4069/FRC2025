@@ -8,6 +8,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -17,6 +18,9 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
+import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 
 import frc.robot.constants.DeviceIDs;
 import frc.robot.constants.ElevatorConstants;
@@ -27,6 +31,7 @@ public class Elevator extends SubsystemBase {
 
     private DutyCycleOut leftOutput = new DutyCycleOut(0.0);
     private DutyCycleOut rightOutput = new DutyCycleOut(0.0);
+    private PositionVoltage request = new PositionVoltage(0.0);
 
     private ProfiledPIDController pid = new ProfiledPIDController(
         ElevatorConstants.pidCoefficients.kP(), 
@@ -57,6 +62,9 @@ public class Elevator extends SubsystemBase {
 
         right.getConfigurator().apply(ElevatorConstants.rightConfig);
         left.getConfigurator().apply(ElevatorConstants.leftConfig);
+        // right.getConfigurator().apply(ElevatorConstants.slot0Configs);
+        // left.getConfigurator().apply(ElevatorConstants.slot0Configs);
+        left.setControl(new Follower(right.getDeviceID(), true));
 
         right.setPosition(0);
         left.setPosition(0);
@@ -74,9 +82,13 @@ public class Elevator extends SubsystemBase {
 
     public void setPower(double power) {
         right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
-        left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
+        // left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
     }
-    
+
+    public void setPosition(double position) {
+        // right.setControl(request.withPosition(metersToRotations(position)));
+    }
+
     public void drive(double power) {
         var ffOutput = kg;
 
@@ -116,10 +128,10 @@ public class Elevator extends SubsystemBase {
     /**
      * @param setpoint meters
      */
-    public void setPosition(double setpoint) {
-        double power = pid.calculate(getPosition(), setpoint);
-        drive(power);
-    }
+    // public void setPosition(double setpoint) {
+    //     double power = pid.calculate(getPosition(), setpoint);
+    //     drive(power);
+    // }
 
     public void resetController(State state) {
         pid.reset(state);
@@ -146,12 +158,13 @@ public class Elevator extends SubsystemBase {
             @Override
             public void execute() {
                 double power = pid.calculate(getPosition(), setpoint);
-                if (getPosition() < 0.08) {
-                    power = MathUtil.clamp(power, -0.4, 1.0);
-                } else if (getPosition() < 0.12) {
-                    power = MathUtil.clamp(power, -0.5, 1.0);
-                }
+                // if (getPosition() < 0.08) {
+                //     power = MathUtil.clamp(power, -0.4, 1.0);
+                // } else if (getPosition() < 0.12) {
+                //     power = MathUtil.clamp(power, -0.5, 1.0);
+                // }
                 drive(power);
+                // setPosition(setpoint);
             }
             @Override
             public boolean isFinished() {
@@ -164,8 +177,37 @@ public class Elevator extends SubsystemBase {
         };
     }
 
+    public Command rezero() {
+        return new Command() {
+            @Override
+            public void execute() {
+                drive(-0.3);
+            }
+            @Override
+            public boolean isFinished() {
+                return bottomPressed();
+            }
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
+    }
+
+    public Command pidToBottom() {
+        return Commands.sequence(pid(0.0), rezero());
+    }
+
+    public boolean bottomPressed() {
+        return atBottom;
+    }
+
     public double rotationsToMeters(double rotations) {
         return rotations * 2 * Math.PI * ElevatorConstants.radius;
+    }
+
+    public double metersToRotations(double meters) {
+        return meters / (2 * Math.PI * ElevatorConstants.radius);
     }
 
     public void stop() {

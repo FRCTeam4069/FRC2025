@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.configs.MountPoseConfigs;
@@ -8,9 +10,11 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 
 public class DrivetrainConstants {
@@ -48,6 +52,8 @@ public class DrivetrainConstants {
     public static final double humanPlayerLeft = Degrees.of(-52.5).in(Radians);
     public static final double humanPlayerRight = Degrees.of(52.5).in(Radians);
 
+    public static final double mass = Pounds.of(135.0).in(Kilograms);
+
     public static final Rotation2d[] snapAngles = new Rotation2d[]{
         Rotation2d.fromDegrees(0.0),
         Rotation2d.fromDegrees(60.0),
@@ -56,6 +62,44 @@ public class DrivetrainConstants {
         Rotation2d.fromDegrees(-120.0),
         Rotation2d.fromDegrees(-60.0)
     };
+
+    public static final Pose2d[] blueLeftReefPoses = new Pose2d[]{
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d())
+    };
+
+    public static final Pose2d[] blueRightReefPoses = new Pose2d[]{
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d())
+    };
+
+    public static final Pose2d[] redLeftReefPoses = new Pose2d[]{
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d())
+    };
+
+    public static final Pose2d[] redRightReefPoses = new Pose2d[]{
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d()),
+        new Pose2d(4.5, 1.6, new Rotation2d())
+    };
+
+    // offset = 0.164m
 
     public static RobotConfig config;
 
@@ -88,6 +132,28 @@ public class DrivetrainConstants {
         double kA,
         double kG
     ) {}
+
+    public record Tolerances (
+        double position,
+        double velocity
+    ) {}
+
+    public record DrivetrainPIDConstants (
+        PIDCoefficients translationCoefficients,
+        PIDCoefficients rotationCoefficients,
+        Constraints translationConstraints,
+        Constraints rotationConstraints,
+        Tolerances translationTolerances,
+        Tolerances rotationTolerances
+    ) {}
+
+    public static volatile DrivetrainPIDConstants pidToPositionConstants = new DrivetrainPIDConstants(
+        new PIDCoefficients(4.0, 0.0, 0.0), 
+        new PIDCoefficients(6.0, 0.0, 0.0), 
+        new Constraints(5.0, 3.0), 
+        new Constraints(5.0, 3.0), 
+        new Tolerances(0.05, 0.20), 
+        new Tolerances(0.05, 0.20));
 
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
 

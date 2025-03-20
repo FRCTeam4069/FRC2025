@@ -10,6 +10,7 @@ import org.littletonrobotics.urcl.URCL;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 
+import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -38,6 +39,8 @@ public class Robot extends TimedRobot {
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
         // URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
+
+        // CanBridge.runTCP();
 
         FollowPathCommand.warmupCommand().schedule();
     }
@@ -104,8 +107,8 @@ public class Robot extends TimedRobot {
         m_robotContainer.drive.setDefaultCommand(m_robotContainer.defaultDriveCommand());
         m_robotContainer.elevator.setDefaultCommand(m_robotContainer.defaultElevatorCommand());
         m_robotContainer.arm.setDefaultCommand(m_robotContainer.defaultArmCommand());
-        m_robotContainer.manipulator.setIntake(0.0);
-        m_robotContainer.manipulator.setDefaultCommand(m_robotContainer.defaultManipulatorCommand());
+        // m_robotContainer.manipulator.setIntake(0.0);
+        // m_robotContainer.manipulator.setDefaultCommand(m_robotContainer.defaultManipulatorCommand());
     }
 
     /** This function is called periodically during operator control. */

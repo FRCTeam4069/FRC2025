@@ -22,8 +22,17 @@ public final class DeviceIDs {
     public static final byte HORIZONTAL_EXTENSION = 7;
     public static final byte ARM_LEFT = 8;
     public static final byte ARM_RIGHT = 9;
-    public static final byte MANIPULATOR_INTAKE = 10;
-    public static final byte MANIPULATOR_KICKER = 11;
+    // public static final byte MANIPULATOR_INTAKE = 10; //fix
+    // public static final byte MANIPULATOR_KICKER = 11;
+    public static final byte MANIPULATOR = 10;
+    public static final byte MANIPULATOR_ENCODER = 11;
+
+    public static final byte MANIPULATOR_LEFT_LASER_CAN = 13;
+    public static final byte MANIPULATOR_RIGHT_LASER_CAN = 12;
+
+    public static final byte CLIMBER_LEFT = 14;
+    public static final byte CLIMBER_RIGHT = 15;
+    public static final byte CLIMBER_PIVOT = 16;
 
     public static final byte POWER_DISTRIBUTION_HUB = 40;
     

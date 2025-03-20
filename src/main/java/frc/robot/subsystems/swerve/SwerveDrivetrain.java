@@ -31,6 +31,7 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -346,7 +347,6 @@ public class SwerveDrivetrain extends SubsystemBase {
     public void periodic() {
         poseEstimator.update(getRawRotation2d(), getModulePositions());
         visionPoseEstimator.update(getRawRotation2d(), getModulePositions());
-        // vision.updatePoseEstimation(this);
 
         var estimatedLF = visionLF.getEstimatedGlobalPose();
         if (estimatedLF.isPresent()) {

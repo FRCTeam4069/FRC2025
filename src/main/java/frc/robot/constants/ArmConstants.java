@@ -49,17 +49,18 @@ public class ArmConstants {
                 .withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
 
-    public volatile static PIDCoefficients pitchPIDCoefficients = new PIDCoefficients(0.25, 0.0, 0.0);
+    public volatile static PIDCoefficients pitchPIDCoefficients = new PIDCoefficients(0.29, 0.0, 0.003);
     public volatile static PIDCoefficients rollPIDCoefficients = new PIDCoefficients(1.0, 0.0, 0.01);
 
     public volatile static PIDCoefficients pitchDrivePIDCoefficients = new PIDCoefficients(0.1, 0.0, 0.0);
     public volatile static PIDCoefficients rollDrivePIDCoefficients = new PIDCoefficients(0.5, 0.0, 0.0);
 
     public volatile static FFCoefficients pitchFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.038);
-    public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.7);
+    // public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.7);
+    public volatile static FFCoefficients rollFFCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.0);
 
-    public volatile static Constraints pitchConstraints = new Constraints(10.0, 50.0);
-    public volatile static Constraints rollConstraints = new Constraints(6.0, 40.0);
+    public volatile static Constraints pitchConstraints = new Constraints(100000.0, 50000.0);
+    public volatile static Constraints rollConstraints = new Constraints(60000.0, 4000000.0);
 
     public volatile static double pitchPositionTolerance = Degrees.of(3.0).in(Radians);
     public volatile static double pitchVelocityTolerance = 5.0;
@@ -67,17 +68,23 @@ public class ArmConstants {
     public volatile static double rollPositionTolerance = Degrees.of(3.0).in(Radians);
     public volatile static double rollVelocityTolerance = 5.0;
 
-    public static final double startingPosition = -119.3 * (Math.PI/180.0); // rads
-    public static final double balancePoint = 16.0 * (Math.PI/180.0); // rads
-    public static final double rotatePoint = 63.0 * (Math.PI/180.0); // rads
-    public static final double humanPlayer = -90.0 * (Math.PI/180.0); // rads
+    public static final double startingPosition = 0.0 * (Math.PI/180.0); // rads
+    public static final double balancePoint = 0.0 * (Math.PI/180.0); // rads
+    public static final double rotatePoint = 15.0 * (Math.PI/180.0); // rads
+    public static final double humanPlayer = -38.0 * (Math.PI/180.0); // rads
 
-    public static final double lowerLimit = -124.0 * (Math.PI/180.0); // rads
+    public static final double lowerLimit = -90.0 * (Math.PI/180.0); // rads
     public static final double upperLimit = 85.0 * (Math.PI/180.0); // rads
 
     public static final double pitchPlaceRight = 85.0 * (Math.PI/180.0); // rads
 
     public static final double L4Pitch = 70.0*(Math.PI/180.0); // rads
+    public static final double L3Pitch = 45.0*(Math.PI/180.0); // rads
+    public static final double L2Pitch = 45.0*(Math.PI/180.0); // rads
+    public static final double L1Pitch = 45.0*(Math.PI/180.0); // rads
 
-    public static boolean telemetryEnabled = false;
+    public static final double placeRoll = 90.0*(Math.PI/180.0); // rads
+    public static final double placePitch = 60.0*(Math.PI/180.0); // rads
+
+    public static boolean telemetryEnabled = true;
 }
