@@ -63,28 +63,34 @@ public class ArmConstants {
     public volatile static Constraints rollConstraints = new Constraints(60000.0, 4000000.0);
 
     public volatile static double pitchPositionTolerance = Degrees.of(3.0).in(Radians);
-    public volatile static double pitchVelocityTolerance = 5.0;
+    public volatile static double pitchVelocityTolerance = 1.0;
 
     public volatile static double rollPositionTolerance = Degrees.of(3.0).in(Radians);
-    public volatile static double rollVelocityTolerance = 5.0;
+    public volatile static double rollVelocityTolerance = 1.0;
 
     public static final double startingPosition = 0.0 * (Math.PI/180.0); // rads
     public static final double balancePoint = 0.0 * (Math.PI/180.0); // rads
-    public static final double rotatePoint = 15.0 * (Math.PI/180.0); // rads
-    public static final double humanPlayer = -38.0 * (Math.PI/180.0); // rads
+    public static final double rotatePoint = 14.0 * (Math.PI/180.0); // rads
+    public static final double humanPlayer = -32.0 * (Math.PI/180.0); // rads
 
     public static final double lowerLimit = -90.0 * (Math.PI/180.0); // rads
-    public static final double upperLimit = 85.0 * (Math.PI/180.0); // rads
+    public static final double upperLimit = 91.0 * (Math.PI/180.0); // rads
 
     public static final double pitchPlaceRight = 85.0 * (Math.PI/180.0); // rads
 
-    public static final double L4Pitch = 70.0*(Math.PI/180.0); // rads
-    public static final double L3Pitch = 45.0*(Math.PI/180.0); // rads
-    public static final double L2Pitch = 45.0*(Math.PI/180.0); // rads
-    public static final double L1Pitch = 45.0*(Math.PI/180.0); // rads
+    public static final double L4Pitch = 55.0*(Math.PI/180.0); // rads
+    public static final double L3Pitch = 15.0*(Math.PI/180.0); // rads
+    public static final double L2Pitch = 15.0*(Math.PI/180.0); // rads
+    public static final double L1Pitch = 15.0*(Math.PI/180.0); // rads
 
     public static final double placeRoll = 90.0*(Math.PI/180.0); // rads
-    public static final double placePitch = 60.0*(Math.PI/180.0); // rads
+    public static final double placePitch = 45.0*(Math.PI/180.0); // rads
+    public static final double l4PlacePitch = 75.0*(Math.PI/180.0); // rads
+
+    public static final double l2ReturnPitch = 39.0*(Math.PI/180.0); // rads
+    public static final double l4ReturnPitch = l4PlacePitch;
+
+    public static final double ballPitch = 90.0 * (Math.PI/180.0); // rads
 
     public static boolean telemetryEnabled = true;
 }

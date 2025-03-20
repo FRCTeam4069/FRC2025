@@ -40,7 +40,7 @@ public class Robot extends TimedRobot {
         DriverStation.startDataLog(DataLogManager.getLog());
         // URCL.start(Map.of(1, "fl", 2, "fr", 3, "bl", 4, "br"));
 
-        // CanBridge.runTCP();
+        CanBridge.runTCP();
 
         FollowPathCommand.warmupCommand().schedule();
     }
@@ -81,6 +81,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.elevator.removeDefaultCommand();
         m_robotContainer.arm.removeDefaultCommand();
         m_robotContainer.drive.driverMode(false);
+        m_robotContainer.climber.removeDefaultCommand();
         
         // schedule the autonomous command (example)
         if (m_autonomousCommand != null) {
@@ -107,6 +108,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.drive.setDefaultCommand(m_robotContainer.defaultDriveCommand());
         m_robotContainer.elevator.setDefaultCommand(m_robotContainer.defaultElevatorCommand());
         m_robotContainer.arm.setDefaultCommand(m_robotContainer.defaultArmCommand());
+        m_robotContainer.climber.setDefaultCommand(m_robotContainer.defaultClimberCommand());
         // m_robotContainer.manipulator.setIntake(0.0);
         // m_robotContainer.manipulator.setDefaultCommand(m_robotContainer.defaultManipulatorCommand());
     }

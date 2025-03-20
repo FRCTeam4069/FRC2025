@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
@@ -93,13 +94,20 @@ public class ElevatorConstants {
     public volatile static double positionTolerance = 0.02;
     public volatile static double velocityTolerance = 1.00;
 
-    public static final double upperLimit = 1.34;
+    public static final double upperLimit = 1.54;
     public static final double l1 = Inches.of(1.0).in(Meters);
-    public static final double l2 = 0.116; //Inches.of(8).in(Meters);
-    public static final double l3 = 0.50; // Inches.of(24).in(Meters);
-    public static final double l4 = 1.32;
-    public static final double hp = 0.0;
-    public static final double ballL2 = Inches.of(3).in(Meters);
-    public static final double ballL3 = Inches.of(18).in(Meters);
+    public static final double l2 = 0.116;
+    public static final double l3 = 0.50;
+    public static final double l4 = 1.50;
+
+    public static final double l1Down = 1.0;
+    public static final double l2Down = 0.0;
+    public static final double l3Down = l3 - Units.inchesToMeters(8);
+    public static final double l4Down = l4 - Units.inchesToMeters(5.0);
+
+    public static final double hp = 0.205;
+    public static final double ballL2 = 0.69;
+    public static final double ballL3 = 1.08;
+    public static final double groundIntake = 0.205;
 
 }

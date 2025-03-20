@@ -56,14 +56,14 @@ public class SwerveDrivetrain extends SubsystemBase {
         .getStructTopic("VisionPose", Pose2d.struct).publish();
     private StructPublisher<ChassisSpeeds> speedsPublisher = NetworkTableInstance.getDefault()
         .getStructTopic("RobotSpeeds", ChassisSpeeds.struct).publish();
-    private StructPublisher<Pose3d> vision3dPosePublisher = NetworkTableInstance.getDefault()
-        .getStructTopic("VisionPose3d", Pose3d.struct).publish();
+    private StructPublisher<Pose3d> leftVision3dPosePublisher = NetworkTableInstance.getDefault()
+        .getStructTopic("leftVisionPose3d", Pose3d.struct).publish();
     private StructPublisher<Pose3d> rightVision3dPosePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("rightVisionPose3d", Pose3d.struct).publish();
     
     private SwerveModuleState[] desiredState = {new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState(), new SwerveModuleState()};
 
-    public Pose2d startingPose = new Pose2d(7.210, 0.490, Rotation2d.fromDegrees(90.0));
+    public Pose2d startingPose = new Pose2d(7.210, 0.490, Rotation2d.fromDegrees(0.0));
 
     // private Field2d field = new Field2d();
 
@@ -82,16 +82,16 @@ public class SwerveDrivetrain extends SubsystemBase {
     //             new Rotation3d(0, Math.toRadians(10.0), Math.toRadians(20)));
 
     private final Transform3d leftFrontTransform = new Transform3d(
-                new Translation3d(Units.inchesToMeters(5.0),
-                                Units.inchesToMeters(7.875),
-                                Units.inchesToMeters(19.875)),
-                new Rotation3d(Math.toRadians(-3.9), Math.toRadians(17.9), Math.toRadians(-20)));
+                new Translation3d(Units.inchesToMeters(7.75),
+                                Units.inchesToMeters(10.25),
+                                Units.inchesToMeters(7.0)),
+                new Rotation3d(Math.toRadians(0.0), Math.toRadians(-22.5), Math.toRadians(-35)));
 
     private final Transform3d rightFrontTransform = new Transform3d(
-                new Translation3d(Units.inchesToMeters(7.0),
-                                Units.inchesToMeters(-7.875),
-                                Units.inchesToMeters(19.875)),
-                new Rotation3d(Math.toRadians(0.7), Math.toRadians(16.0), Math.toRadians(20)));
+                new Translation3d(Units.inchesToMeters(7.75),
+                                Units.inchesToMeters(-10.25),
+                                Units.inchesToMeters(7.0)),
+                new Rotation3d(Math.toRadians(0.0), Math.toRadians(-23.0), Math.toRadians(34)));
 
     private final Transform3d leftBackTransform = new Transform3d(
                 new Translation3d(Units.inchesToMeters(0.375),
@@ -298,6 +298,10 @@ public class SwerveDrivetrain extends SubsystemBase {
     public Command stopCommand() {
         return run(() -> stop());
     }
+    
+    public Command stopOnceCommand() {
+        return runOnce(() -> stop());
+    }
 
     public void stop() {
         drive(new ChassisSpeeds(0.0, 0.0, 0.0));
@@ -350,25 +354,25 @@ public class SwerveDrivetrain extends SubsystemBase {
 
         var estimatedLF = visionLF.getEstimatedGlobalPose();
         if (estimatedLF.isPresent()) {
-            // vision3dPosePublisher.set(estimatedLF.get().estimatedPose);
+            leftVision3dPosePublisher.set(estimatedLF.get().estimatedPose);
             addVisionMeasurement(estimatedLF.get().estimatedPose.toPose2d(), estimatedLF.get().timestampSeconds, visionLF.getStdDeviations());
         }
 
         var estimatedRF = visionRF.getEstimatedGlobalPose();
         if (estimatedRF.isPresent()) {
-            //rightVision3dPosePublisher.set(estimatedRF.get().estimatedPose);
+            rightVision3dPosePublisher.set(estimatedRF.get().estimatedPose);
             addVisionMeasurement(estimatedRF.get().estimatedPose.toPose2d(), estimatedRF.get().timestampSeconds, visionRF.getStdDeviations());
         }
 
         var estimatedLB = visionLB.getEstimatedGlobalPose();
         if (estimatedLB.isPresent()) {
-            vision3dPosePublisher.set(estimatedLB.get().estimatedPose);
+            // vision3dPosePublisher.set(estimatedLB.get().estimatedPose);
             addVisionMeasurement(estimatedLB.get().estimatedPose.toPose2d(), estimatedLB.get().timestampSeconds, visionLB.getStdDeviations());
         }
 
         var estimatedRB = visionRB.getEstimatedGlobalPose();
         if (estimatedRB.isPresent()) {
-            rightVision3dPosePublisher.set(estimatedRB.get().estimatedPose);
+            // rightVision3dPosePublisher.set(estimatedRB.get().estimatedPose);
             addVisionMeasurement(estimatedRB.get().estimatedPose.toPose2d(), estimatedRB.get().timestampSeconds, visionRB.getStdDeviations());
         }
 

@@ -64,39 +64,39 @@ public class DrivetrainConstants {
     };
 
     public static final Pose2d[] blueLeftReefPoses = new Pose2d[]{
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d())
+        new Pose2d(3.68, 3.03, Rotation2d.fromDegrees(60.0)),
+        new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(4.02, 5.205, Rotation2d.fromDegrees(-60.0)),
+        new Pose2d(5.02, 5.17, Rotation2d.fromDegrees(-120.0)),
+        new Pose2d(5.75, 4.16, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(5.25, 3.03, Rotation2d.fromDegrees(120.0))
     };
 
     public static final Pose2d[] blueRightReefPoses = new Pose2d[]{
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d())
+        new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)),
+        new Pose2d(3.24, 3.88, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(3.72, 5.02, Rotation2d.fromDegrees(-60.0)),
+        new Pose2d(5.30, 5.03, Rotation2d.fromDegrees(-120.0)),
+        new Pose2d(5.76, 3.85, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(4.97, 2.83, Rotation2d.fromDegrees(120.0))
     };
 
     public static final Pose2d[] redLeftReefPoses = new Pose2d[]{
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d())
+        new Pose2d(3.68, 3.03, Rotation2d.fromDegrees(60.0)),
+        new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(4.02, 5.205, Rotation2d.fromDegrees(-60.0)),
+        new Pose2d(5.30, 5.03, Rotation2d.fromDegrees(-120.0)),
+        new Pose2d(5.76, 3.85, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(4.97, 2.83, Rotation2d.fromDegrees(120.0))
     };
 
     public static final Pose2d[] redRightReefPoses = new Pose2d[]{
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d()),
-        new Pose2d(4.5, 1.6, new Rotation2d())
+        new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)),
+        new Pose2d(3.24, 3.88, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(3.72, 5.02, Rotation2d.fromDegrees(-60.0)),
+        new Pose2d(5.02, 5.17, Rotation2d.fromDegrees(-120.0)),
+        new Pose2d(5.75, 4.16, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(5.25, 3.03, Rotation2d.fromDegrees(120.0))
     };
 
     // offset = 0.164m
@@ -148,12 +148,12 @@ public class DrivetrainConstants {
     ) {}
 
     public static volatile DrivetrainPIDConstants pidToPositionConstants = new DrivetrainPIDConstants(
-        new PIDCoefficients(4.0, 0.0, 0.0), 
-        new PIDCoefficients(6.0, 0.0, 0.0), 
+        new PIDCoefficients(8.0, 0.0, 0.0), 
+        new PIDCoefficients(10.0, 0.0, 0.4), 
         new Constraints(5.0, 3.0), 
-        new Constraints(5.0, 3.0), 
-        new Tolerances(0.05, 0.20), 
-        new Tolerances(0.05, 0.20));
+        new Constraints(10.0, 10.0), 
+        new Tolerances(0.005, 0.20), 
+        new Tolerances(0.02, 0.20));
 
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
 

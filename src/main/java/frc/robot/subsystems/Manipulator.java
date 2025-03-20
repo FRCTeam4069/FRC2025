@@ -24,8 +24,8 @@ import frc.robot.constants.ManipulatorConstants;
 public class Manipulator extends SubsystemBase {
     private final TalonFX motor;
     private final DutyCycleOut output = new DutyCycleOut(0.0);
-    private final LaserCan leftSensor;
-    private final LaserCan rightSensor;
+    private LaserCan leftSensor;
+    private LaserCan rightSensor;
     private double left = 10000;
     private double right = 10000;
 
@@ -39,7 +39,7 @@ public class Manipulator extends SubsystemBase {
         leftSensor = new LaserCan(DeviceIDs.MANIPULATOR_LEFT_LASER_CAN);
         rightSensor = new LaserCan(DeviceIDs.MANIPULATOR_RIGHT_LASER_CAN);
 
-        Alert alert = new Alert("LaserCAN", AlertType.kError);
+        Alert alert = new Alert("LaserCAN", AlertType.kWarning);
 
         try {
             leftSensor.setRangingMode(LaserCan.RangingMode.SHORT);
@@ -64,7 +64,7 @@ public class Manipulator extends SubsystemBase {
             return left;
         }
 
-        if (measurement.status == LaserCan.LASERCAN_STATUS_OUT_OF_BOUNDS) {
+        if (measurement.status == LaserCan.LASERCAN_STATUS_OUT_OF_BOUNDS || measurement.status == LaserCan.LASERCAN_STATUS_WEAK_SIGNAL || measurement.status == LaserCan.LASERCAN_STATUS_NOISE_ISSUE) {
             return 10000;
         }
 
@@ -77,7 +77,15 @@ public class Manipulator extends SubsystemBase {
 
     private double getRightSensor() {
         Measurement measurement = rightSensor.getMeasurement();
-        if (measurement != null && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+        if (measurement == null) {
+            return right;
+        }
+
+        if (measurement.status == LaserCan.LASERCAN_STATUS_OUT_OF_BOUNDS || measurement.status == LaserCan.LASERCAN_STATUS_WEAK_SIGNAL || measurement.status == LaserCan.LASERCAN_STATUS_NOISE_ISSUE) {
+            return 10000;
+        }
+
+        if (measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
             return measurement.distance_mm;
         } 
 

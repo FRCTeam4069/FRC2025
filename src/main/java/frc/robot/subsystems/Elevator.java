@@ -24,6 +24,7 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 
 import frc.robot.constants.DeviceIDs;
 import frc.robot.constants.ElevatorConstants;
+import frc.robot.subsystems.Arm.ArmState;
 
 public class Elevator extends SubsystemBase {
     private final TalonFX left;
@@ -145,6 +146,53 @@ public class Elevator extends SubsystemBase {
         }
     }
 
+    public double getSetpoint() {
+        return pid.getSetpoint().position;
+    }
+
+    public static double armStateToPosition(ArmState state) {
+        double pos = ElevatorConstants.l1;
+        switch (state) {
+            case L1:
+                pos = ElevatorConstants.l1;
+                break;
+            case L2:
+                pos = ElevatorConstants.l2;
+                break;
+            case L3:
+                pos = ElevatorConstants.l3;
+                break;
+            case L4:
+                pos = ElevatorConstants.l4;
+                break;
+            default:
+                break;
+        }
+        return pos;
+    }
+
+    public static double armStateToDownPosition(ArmState state) {
+        double pos = ElevatorConstants.l1Down;
+        switch (state) {
+            case L1:
+                pos = ElevatorConstants.l1Down;
+                break;
+            case L2:
+                pos = ElevatorConstants.l2Down;
+                break;
+            case L3:
+                pos = ElevatorConstants.l3Down;
+                break;
+            case L4:
+                pos = ElevatorConstants.l4Down;
+                break;
+            default:
+                break;
+        }
+        return pos;
+    }
+
+
     /**
      * @param setpoint meters
      */
@@ -157,7 +205,7 @@ public class Elevator extends SubsystemBase {
             }
             @Override
             public void execute() {
-                double power = pid.calculate(getPosition(), setpoint);
+                double power = pid.calculate(getPosition(), MathUtil.clamp(setpoint, 0.0, ElevatorConstants.upperLimit));
                 // if (getPosition() < 0.08) {
                 //     power = MathUtil.clamp(power, -0.4, 1.0);
                 // } else if (getPosition() < 0.12) {

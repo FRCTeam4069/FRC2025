@@ -299,7 +299,7 @@ public class Arm extends SubsystemBase {
     }
 
     public Command pid(double pitch, double roll) {
-        return new Command() {
+        var command = new Command() {
             @Override
             public void initialize() {
                 resetControllers();
@@ -318,10 +318,14 @@ public class Arm extends SubsystemBase {
                 return atPosition();
             }
         };
+
+        command.addRequirements(this);
+
+        return command;
     }
 
     public Command pidRoll(double roll) {
-        return new Command() {
+        var command = new Command() {
             @Override
             public void initialize() {
                 rollPID.reset(getRoll(), getRollVelocity());
@@ -338,6 +342,19 @@ public class Arm extends SubsystemBase {
             @Override
             public boolean isFinished() {
                 return atPosition();
+            }
+        };
+
+        command.addRequirements(this);
+
+        return command;
+    }
+
+    public Command waitUntilHumanPlayer() {
+        return new Command() {
+            @Override
+            public boolean isFinished() {
+                return getPitch() > -10.0;
             }
         };
     }
