@@ -94,7 +94,7 @@ public class ElevatorConstants {
     public volatile static double positionTolerance = 0.02;
     public volatile static double velocityTolerance = 1.00;
 
-    public static final double upperLimit = 1.54;
+    public static final double upperLimit = 1.64;
     public static final double l1 = Inches.of(1.0).in(Meters);
     public static final double l2 = 0.116;
     public static final double l3 = 0.50;
@@ -108,6 +108,7 @@ public class ElevatorConstants {
     public static final double hp = 0.205;
     public static final double ballL2 = 0.69;
     public static final double ballL3 = 1.08;
+    public static final double ballPlace = upperLimit-0.02;
     public static final double groundIntake = 0.205;
 
 }

@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.FieldCentricDrive;
+import frc.robot.commands.PIDToPosition;
 import frc.robot.constants.ArmConstants;
 import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.ElevatorConstants;
@@ -146,19 +147,23 @@ public class RobotContainer {
 
     private void registerAutoCommands() {
         NamedCommands.registerCommand("stop drivetrain", drive.stopCommand());
-        NamedCommands.registerCommand("place l4 left", placeL4Left());
-        NamedCommands.registerCommand("place l4 right", placeL4Right());
+        NamedCommands.registerCommand("place l4", placeL4());
+        NamedCommands.registerCommand("l4", L4().andThen(place().withTimeout(0.5)));
+        NamedCommands.registerCommand("release", release());
         NamedCommands.registerCommand("human player", humanPlayer());
-        NamedCommands.registerCommand("stop intake", manipulator.stopIntake());
         NamedCommands.registerCommand("home", home());
+        NamedCommands.registerCommand("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0))));
+        NamedCommands.registerCommand("drive bottom p2", new PIDToPosition(drive, new Pose2d(3.61, 2.86, Rotation2d.fromDegrees(60.0))));
+        NamedCommands.registerCommand("drive closest l4 right", new DriveToReef(drive, false, () -> true));
+        NamedCommands.registerCommand("drive closest l4 left", new DriveToReef(drive, true, () -> true));
     }
 
-    private Command placeL4Left() {
-        return Commands.sequence();
-    }
-
-    private Command placeL4Right() {
-        return Commands.sequence();
+    private Command placeL4() {
+        return Commands.sequence(
+            L4(),
+            place().withTimeout(1.0),
+            release()
+        );
     }
 
     public Command defaultDriveCommand() {
@@ -350,7 +355,7 @@ public class RobotContainer {
     private Command ballPickupL2FromHome() {
         return Commands.parallel(
             manipulator.runIntake(),
-            arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll()),
+            arm.pid(ArmConstants.ballPitch, 0.0),
             elevator.pid(ElevatorConstants.ballL2),
             arm.setState(ArmState.BALL_L2_PICKUP)
         );
@@ -359,7 +364,7 @@ public class RobotContainer {
     private Command ballPickupL3FromHome() {
         return Commands.parallel(
             manipulator.runIntake(),
-            arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll()),
+            arm.pid(ArmConstants.ballPitch, 0.0),
             elevator.pid(ElevatorConstants.ballL3),
             arm.setState(ArmState.BALL_L3_PICKUP)
         );
@@ -368,12 +373,12 @@ public class RobotContainer {
     private Command ballPlaceFromHome() {
         return Commands.sequence(
             Commands.parallel(
-                elevator.pid(ElevatorConstants.l4),
+                elevator.pid(ElevatorConstants.ballPlace),
                 arm.setState(ArmState.BALL_PLACE),
-                arm.pid(ArmConstants.balancePoint, arm.getPlaceRoll())
+                arm.pid(ArmConstants.ballPlacePitch, 0.0)
                 //manipulator.runIntake()
-            )
-            //arm.pid(ArmConstants.balancePoint, 0.0)
+            ),
+            arm.pid(ArmConstants.ballPlacePitch, arm.getPlaceRoll())
         );
     }
 

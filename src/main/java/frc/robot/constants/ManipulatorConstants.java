@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.measure.Current;
 import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
@@ -28,21 +29,23 @@ public class ManipulatorConstants {
     public static final double intakeHoldPower = 0.5;
     public static final double kickerPlacePower = 1.0;
     public static final double kickerPlaceTime = 1.3;
-    public static final double emptyDistance = 30.0; // mm
+    public static final double emptyDistance = 22.0; // mm
     // 1.875in edge to edge white wheel minimum distance
-
+    public static final double supplyCurrentLimit = 40.0;
+    public static final double statorCurrentLimit = 40.0;
+    
     public static final TalonFXConfiguration talonConfig = new TalonFXConfiguration()
         .withCurrentLimits(
             new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(ArmConstants.supplyCurrentLimit)
+                .withSupplyCurrentLimit(supplyCurrentLimit)
                 .withSupplyCurrentLimitEnable(true)
-                .withStatorCurrentLimit(ArmConstants.statorCurrentLimit)
-                .withStatorCurrentLimitEnable(true))
-        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(10.0 * 1.22))
-        .withMotorOutput(
-            new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Brake)
-                .withInverted(InvertedValue.CounterClockwise_Positive));
+                .withStatorCurrentLimit(statorCurrentLimit)
+            .withStatorCurrentLimitEnable(true))
+    .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(10.0 * 1.22))
+    .withMotorOutput(
+        new MotorOutputConfigs()
+            .withNeutralMode(NeutralModeValue.Brake)
+            .withInverted(InvertedValue.CounterClockwise_Positive));
 
     // public static SparkMaxConfig intakeConfig = new SparkMaxConfig();
     // public static SparkMaxConfig kickerConfig = new SparkMaxConfig();

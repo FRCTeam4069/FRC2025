@@ -291,7 +291,8 @@ public class Arm extends SubsystemBase {
     }
 
     public double getPlaceRoll() {
-        return placeLeft ? -ArmConstants.placeRoll : ArmConstants.placeRoll;
+        //return placeLeft ? -ArmConstants.placeRoll : ArmConstants.placeRoll;
+        return -ArmConstants.placeRoll;
     }
 
     public boolean canRotate() {

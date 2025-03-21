@@ -72,6 +72,7 @@ public class ArmConstants {
     public static final double balancePoint = 0.0 * (Math.PI/180.0); // rads
     public static final double rotatePoint = 14.0 * (Math.PI/180.0); // rads
     public static final double humanPlayer = -32.0 * (Math.PI/180.0); // rads
+    public static final double ballPlacePitch = 30.0 * (Math.PI/180.0); // rads
 
     public static final double lowerLimit = -90.0 * (Math.PI/180.0); // rads
     public static final double upperLimit = 91.0 * (Math.PI/180.0); // rads

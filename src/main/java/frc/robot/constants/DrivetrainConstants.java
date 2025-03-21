@@ -19,7 +19,7 @@ import edu.wpi.first.math.util.Units;
 
 public class DrivetrainConstants {
 
-    public static final int driveCurrentLimit = 60;
+    public static final int driveCurrentLimit = 50;
     public static final int steerCurrentLimit = 30;
     public volatile static double wheelDiameter = 3.99; // 3.94in
     //bl 3.955 -> 3.912
@@ -152,7 +152,15 @@ public class DrivetrainConstants {
         new PIDCoefficients(10.0, 0.0, 0.4), 
         new Constraints(5.0, 3.0), 
         new Constraints(10.0, 10.0), 
-        new Tolerances(0.005, 0.20), 
+        new Tolerances(0.01, 0.20), 
+        new Tolerances(0.02, 0.20));
+
+    public static volatile DrivetrainPIDConstants autoPidToPositionConstants = new DrivetrainPIDConstants(
+        new PIDCoefficients(6.0, 0.0, 0.0), 
+        new PIDCoefficients(8.0, 0.0, 0.6), 
+        new Constraints(5.0, 3.0), 
+        new Constraints(10.0, 10.0), 
+        new Tolerances(0.01, 0.20), 
         new Tolerances(0.02, 0.20));
 
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
