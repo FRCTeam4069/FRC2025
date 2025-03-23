@@ -18,8 +18,8 @@ import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 public class ArmConstants {
 
-    public static final double supplyCurrentLimit = 40.0;
-    public static final double statorCurrentLimit = 100.0;
+    public static final double supplyCurrentLimit = 30.0;
+    public static final double statorCurrentLimit = 40.0;
     public static final double ratio = 5.0 * 5.0;
 
     public static final TalonFXConfiguration rightConfig = new TalonFXConfiguration()
@@ -70,9 +70,12 @@ public class ArmConstants {
 
     public static final double startingPosition = 0.0 * (Math.PI/180.0); // rads
     public static final double balancePoint = 0.0 * (Math.PI/180.0); // rads
-    public static final double rotatePoint = 14.0 * (Math.PI/180.0); // rads
+    public static final double rotatePoint = 16.0 * (Math.PI/180.0); // rads
     public static final double humanPlayer = -32.0 * (Math.PI/180.0); // rads
-    public static final double ballPlacePitch = 30.0 * (Math.PI/180.0); // rads
+    public static final double humanPlayerOneCoral = -54.0 * (Math.PI/180.0); // rads
+    public static final double preHumanPlayer = -25.0 * (Math.PI/180.0); // rads
+    public static final double ballPlacePitch = 25.0 * (Math.PI/180.0); // rads
+    public static final double ballStowPitch = 40.0 * (Math.PI/180.0); // rads
 
     public static final double lowerLimit = -90.0 * (Math.PI/180.0); // rads
     public static final double upperLimit = 91.0 * (Math.PI/180.0); // rads
@@ -82,7 +85,7 @@ public class ArmConstants {
     public static final double L4Pitch = 55.0*(Math.PI/180.0); // rads
     public static final double L3Pitch = 15.0*(Math.PI/180.0); // rads
     public static final double L2Pitch = 15.0*(Math.PI/180.0); // rads
-    public static final double L1Pitch = 15.0*(Math.PI/180.0); // rads
+    public static final double L1Pitch = 55.0*(Math.PI/180.0); // rads
 
     public static final double placeRoll = 90.0*(Math.PI/180.0); // rads
     public static final double placePitch = 45.0*(Math.PI/180.0); // rads

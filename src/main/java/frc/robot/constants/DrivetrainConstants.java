@@ -20,7 +20,7 @@ import edu.wpi.first.math.util.Units;
 public class DrivetrainConstants {
 
     public static final int driveCurrentLimit = 50;
-    public static final int steerCurrentLimit = 30;
+    public static final int steerCurrentLimit = 25;
     public volatile static double wheelDiameter = 3.99; // 3.94in
     //bl 3.955 -> 3.912
     //fl 3.9545
@@ -64,39 +64,53 @@ public class DrivetrainConstants {
     };
 
     public static final Pose2d[] blueLeftReefPoses = new Pose2d[]{
-        new Pose2d(3.68, 3.03, Rotation2d.fromDegrees(60.0)),
-        new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)),
-        new Pose2d(4.02, 5.205, Rotation2d.fromDegrees(-60.0)),
-        new Pose2d(5.02, 5.17, Rotation2d.fromDegrees(-120.0)),
-        new Pose2d(5.75, 4.16, Rotation2d.fromDegrees(180.0)),
-        new Pose2d(5.25, 3.03, Rotation2d.fromDegrees(120.0))
+        new Pose2d(3.69, 3.02, Rotation2d.fromDegrees(60.0)), //g
+        new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)), //g
+        new Pose2d(4.02, 5.22, Rotation2d.fromDegrees(-60.0)), //g
+        new Pose2d(4.96, 5.20, Rotation2d.fromDegrees(-120.0)), //g
+        new Pose2d(5.75, 4.20, Rotation2d.fromDegrees(180.0)), //g
+        new Pose2d(5.25, 3.02, Rotation2d.fromDegrees(120.0)) //g
     };
 
     public static final Pose2d[] blueRightReefPoses = new Pose2d[]{
-        new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)),
-        new Pose2d(3.24, 3.88, Rotation2d.fromDegrees(0.0)),
-        new Pose2d(3.72, 5.02, Rotation2d.fromDegrees(-60.0)),
-        new Pose2d(5.30, 5.03, Rotation2d.fromDegrees(-120.0)),
-        new Pose2d(5.76, 3.85, Rotation2d.fromDegrees(180.0)),
-        new Pose2d(4.97, 2.83, Rotation2d.fromDegrees(120.0))
+        new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)), //g
+        new Pose2d(3.24, 3.88, Rotation2d.fromDegrees(0.0)), //g
+        new Pose2d(3.72, 5.03, Rotation2d.fromDegrees(-60.0)), //g
+        new Pose2d(5.30, 5.02, Rotation2d.fromDegrees(-120.0)), //g
+        new Pose2d(5.76, 3.83, Rotation2d.fromDegrees(180.0)), //g
+        new Pose2d(4.97, 2.83, Rotation2d.fromDegrees(120.0)) //g
     };
 
     public static final Pose2d[] redLeftReefPoses = new Pose2d[]{
-        new Pose2d(3.68, 3.03, Rotation2d.fromDegrees(60.0)),
-        new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)),
-        new Pose2d(4.02, 5.205, Rotation2d.fromDegrees(-60.0)),
-        new Pose2d(5.30, 5.03, Rotation2d.fromDegrees(-120.0)),
-        new Pose2d(5.76, 3.85, Rotation2d.fromDegrees(180.0)),
-        new Pose2d(4.97, 2.83, Rotation2d.fromDegrees(120.0))
+        new Pose2d(12.57, 2.86, Rotation2d.fromDegrees(60)),
+        new Pose2d(11.81, 3.89, Rotation2d.fromDegrees(0)),
+        new Pose2d(12.29, 5.02, Rotation2d.fromDegrees(-60)),
+        new Pose2d(13.86, 5.03, Rotation2d.fromDegrees(-120)),
+        new Pose2d(14.33, 3.84, Rotation2d.fromDegrees(180)),
+        new Pose2d(13.52, 2.84, Rotation2d.fromDegrees(120)),
+
     };
 
     public static final Pose2d[] redRightReefPoses = new Pose2d[]{
-        new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)),
-        new Pose2d(3.24, 3.88, Rotation2d.fromDegrees(0.0)),
-        new Pose2d(3.72, 5.02, Rotation2d.fromDegrees(-60.0)),
-        new Pose2d(5.02, 5.17, Rotation2d.fromDegrees(-120.0)),
-        new Pose2d(5.75, 4.16, Rotation2d.fromDegrees(180.0)),
-        new Pose2d(5.25, 3.03, Rotation2d.fromDegrees(120.0))
+        new Pose2d(12.26, 3.03, Rotation2d.fromDegrees(60)),
+        new Pose2d(11.78, 4.22, Rotation2d.fromDegrees(0)),
+        new Pose2d(12.59, 5.22, Rotation2d.fromDegrees(-60)),
+        new Pose2d(13.53, 5.20, Rotation2d.fromDegrees(-120)),
+        new Pose2d(14.31, 4.19, Rotation2d.fromDegrees(180)),
+        new Pose2d(13.82, 3.03, Rotation2d.fromDegrees(120))
+
+    };
+
+    public static final Pose2d[] blueClimbPoses = new Pose2d[]{
+        new Pose2d(7.8, 7.26, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(7.8, 6.160, Rotation2d.fromDegrees(180.0)),
+        new Pose2d(7.8, 5.15, Rotation2d.fromDegrees(180.0))
+    };
+
+    public static final Pose2d[] redClimbPoses = new Pose2d[]{
+        new Pose2d(9.75, 3.06, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(9.75, 2.01, Rotation2d.fromDegrees(0.0)),
+        new Pose2d(9.75, 0.94, Rotation2d.fromDegrees(0.0))
     };
 
     // offset = 0.164m

@@ -11,7 +11,9 @@ import java.util.function.DoubleSupplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.revrobotics.ColorSensorV3.MainControl;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -28,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.DriveToClimb;
 import frc.robot.commands.DriveToReef;
 import frc.robot.commands.FieldCentricDrive;
 import frc.robot.commands.PIDToPosition;
@@ -100,7 +103,7 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
      */
     private void configureBindings() {
-        controller0.a().onTrue(drive.resetHeadingCommand());
+        // controller0.a().onTrue(drive.resetHeadingCommand());
         controller0.start().onTrue(new InstantCommand(() -> drive.resetPose(new Pose2d())));
 
         // controller0.povLeft().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(-1.0)));
@@ -108,6 +111,7 @@ public class RobotContainer {
 
         controller0.povLeft().onTrue(new DriveToReef(drive, true, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
         controller0.povRight().onTrue(new DriveToReef(drive, false, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
+        controller0.a().onTrue(new DriveToClimb(drive)).onFalse(drive.stopOnceCommand());
 
 
         // controller1.a().onTrue(arm.pid(ArmConstants.humanPlayer, 0));
@@ -126,14 +130,17 @@ public class RobotContainer {
         controller1.povLeft().onTrue(L2());
         controller1.povRight().onTrue(L3());
         controller1.povUp().onTrue(L4());
+        controller1.povDown().onTrue(L1());
         controller1.rightBumper().onTrue(place()).onFalse(release());
 
         controller1.x().onTrue(ballPickupL2());
         controller1.y().onTrue(ballPickupL3());
-        controller1.back().onTrue(ballLaunch());
+        controller1.leftBumper().onTrue(ballLaunch());
         controller1.start().onTrue(ballPlace());
+        controller1.back().onTrue(humanPlayerOneCoral());
 
-        controller1.leftBumper().onTrue(climber.pid(ClimberConstants.forwardLimit));
+        // controller1.leftBumper().onTrue(climber.pid(ClimberConstants.forwardLimit));
+        controller1.leftTrigger(0.8).onTrue(climbStart());
 
         // controller1.rightTrigger(0.05).onTrue(manipulator.runIntake()).onFalse(manipulator.stopIntake());
         // controller1.leftTrigger(0.05).onTrue(manipulator.runIntake()).onFalse(manipulator.stopIntake());
@@ -152,8 +159,16 @@ public class RobotContainer {
         NamedCommands.registerCommand("release", release());
         NamedCommands.registerCommand("human player", humanPlayer());
         NamedCommands.registerCommand("home", home());
-        NamedCommands.registerCommand("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0))));
-        NamedCommands.registerCommand("drive bottom p2", new PIDToPosition(drive, new Pose2d(3.61, 2.86, Rotation2d.fromDegrees(60.0))));
+        NamedCommands.registerCommand("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0)), false)); //right
+        NamedCommands.registerCommand("drive bottom p2", new PIDToPosition(drive, new Pose2d(3.61, 2.86, Rotation2d.fromDegrees(60.0)), false)); //left
+        NamedCommands.registerCommand("blue left p1", new PIDToPosition(drive, new Pose2d(5.30, 5.02, Rotation2d.fromDegrees(-120.0)), true));
+        NamedCommands.registerCommand("blue left p2", new PIDToPosition(drive, new Pose2d(3.72, 5.03, Rotation2d.fromDegrees(-60.0)), true));
+        NamedCommands.registerCommand("red right drive p1", new PIDToPosition(drive, new Pose2d(12.59, 5.22, Rotation2d.fromDegrees(-60.0)), true));
+        NamedCommands.registerCommand("red right drive p2", new PIDToPosition(drive, new Pose2d(13.86, 5.03, Rotation2d.fromDegrees(-120.0)), true));
+        NamedCommands.registerCommand("red left drive p1", new PIDToPosition(drive, new Pose2d(12.57, 2.86, Rotation2d.fromDegrees(60)), true));
+        NamedCommands.registerCommand("red left drive p2", new PIDToPosition(drive, new Pose2d(13.82, 3.03, Rotation2d.fromDegrees(120)), true));
+        NamedCommands.registerCommand("blue right middle drive p1", new PIDToPosition(drive, new Pose2d(5.76, 3.83, Rotation2d.fromDegrees(180.0)), true));
+        NamedCommands.registerCommand("red right middle drive p1", new PIDToPosition(drive, new Pose2d(11.78, 4.22, Rotation2d.fromDegrees(0)), true));
         NamedCommands.registerCommand("drive closest l4 right", new DriveToReef(drive, false, () -> true));
         NamedCommands.registerCommand("drive closest l4 left", new DriveToReef(drive, true, () -> true));
     }
@@ -198,7 +213,22 @@ public class RobotContainer {
     }
 
     public Command defaultClimberCommand() {
-        return climber.drivePivot(() -> controller1.getRightY());
+        return climber.defaultCommand(() -> MathUtil.applyDeadband(Math.pow(controller1.getHID().getRightTriggerAxis(), 3) + (controller0.getHID().getStartButton() ? -1.0 : 0.0), 0.1), (() -> arm.getState() == ArmState.HOME));
+    }
+
+    private Command L1() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.L2, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.L3, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.L4, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.HOME, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.HP, placeFromHP(ArmState.L1)),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
+            ), () -> arm.getState());
     }
 
     private Command L2() {
@@ -256,8 +286,8 @@ public class RobotContainer {
                 Map.entry(ArmState.L4, homeFromPlace()),
                 Map.entry(ArmState.HOME, homeFromPlace()),
                 Map.entry(ArmState.HP, homeFromHP()),
-                Map.entry(ArmState.BALL_L2_PICKUP, homeFromPlace()),
-                Map.entry(ArmState.BALL_L3_PICKUP, homeFromPlace()),
+                Map.entry(ArmState.BALL_L2_PICKUP, homeFromBallPickup()),
+                Map.entry(ArmState.BALL_L3_PICKUP, homeFromBallPickup()),
                 Map.entry(ArmState.BALL_PLACE, homeFromPlace())
             ), () -> arm.getState());
     }
@@ -352,10 +382,40 @@ public class RobotContainer {
             ), () -> arm.getState());
     }
 
+    private Command climbStart() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, new InstantCommand()),
+                Map.entry(ArmState.L2, new InstantCommand()),
+                Map.entry(ArmState.L3, new InstantCommand()),
+                Map.entry(ArmState.L4, new InstantCommand()),
+                Map.entry(ArmState.HOME, climber.filp().withTimeout(0.75).andThen(climber.stopPivotCommand())),
+                Map.entry(ArmState.HP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
+            ), () -> arm.getState());
+    }
+
+    private Command humanPlayerOneCoral() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, new InstantCommand()),
+                Map.entry(ArmState.L2, new InstantCommand()),
+                Map.entry(ArmState.L3, new InstantCommand()),
+                Map.entry(ArmState.L4, new InstantCommand()),
+                Map.entry(ArmState.HOME, new InstantCommand()),
+                Map.entry(ArmState.HP, humanPlayerDown()),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand())
+            ), () -> arm.getState());
+    }
+
     private Command ballPickupL2FromHome() {
         return Commands.parallel(
             manipulator.runIntake(),
-            arm.pid(ArmConstants.ballPitch, 0.0),
+            arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll()),
             elevator.pid(ElevatorConstants.ballL2),
             arm.setState(ArmState.BALL_L2_PICKUP)
         );
@@ -364,7 +424,7 @@ public class RobotContainer {
     private Command ballPickupL3FromHome() {
         return Commands.parallel(
             manipulator.runIntake(),
-            arm.pid(ArmConstants.ballPitch, 0.0),
+            arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll()),
             elevator.pid(ElevatorConstants.ballL3),
             arm.setState(ArmState.BALL_L3_PICKUP)
         );
@@ -375,7 +435,7 @@ public class RobotContainer {
             Commands.parallel(
                 elevator.pid(ElevatorConstants.ballPlace),
                 arm.setState(ArmState.BALL_PLACE),
-                arm.pid(ArmConstants.ballPlacePitch, 0.0)
+                arm.pid(ArmConstants.ballStowPitch, arm.getPlaceRoll())
                 //manipulator.runIntake()
             ),
             arm.pid(ArmConstants.ballPlacePitch, arm.getPlaceRoll())
@@ -400,6 +460,8 @@ public class RobotContainer {
         switch (initialState) {
             case L1:
                 armPitch = ArmConstants.L1Pitch;
+                armPlacePitch = ArmConstants.L1Pitch;
+                armRoll = 0.0;
                 break;
             case L2:
                 armPitch = ArmConstants.L2Pitch;
@@ -417,7 +479,7 @@ public class RobotContainer {
 
         return Commands.sequence(
                     //elevator.pid(Elevator.armStateToPosition(initialState)),
-                arm.pid(armPlacePitch, arm.getPlaceRoll())
+                arm.pid(armPlacePitch, armRoll)
                     
             );
     }
@@ -431,9 +493,13 @@ public class RobotContainer {
         double armPitch = ArmConstants.rotatePoint;
         double armReturnPitch = ArmConstants.l2ReturnPitch;
         double armRoll = arm.getPlaceRoll();
+        double outtakeSpeed = ManipulatorConstants.outtakePower;
         switch (initialState) {
             case L1:
                 armPitch = ArmConstants.L1Pitch;
+                armReturnPitch = ArmConstants.L1Pitch;
+                armRoll = 0.0;
+                outtakeSpeed = -0.05;
                 break;
             case L2:
                 armPitch = ArmConstants.L2Pitch;
@@ -450,9 +516,9 @@ public class RobotContainer {
         }
 
         return Commands.parallel(
-                manipulator.outtakeUntilRelease(),
+                manipulator.outtakeUntilRelease(outtakeSpeed),
                 elevator.pid(Elevator.armStateToDownPosition(initialState)),
-                arm.pid(armReturnPitch, arm.getPlaceRoll())
+                arm.pid(armReturnPitch, armRoll)
             ).andThen(arm.pid(armPitch, armRoll));
     }
 
@@ -470,6 +536,7 @@ public class RobotContainer {
             case L1:
                 elevatorPosition = ElevatorConstants.l1;
                 armPitch = ArmConstants.L1Pitch;
+                armRoll = 0.0;
                 break;
             case L2:
                 elevatorPosition = ElevatorConstants.l2;
@@ -546,6 +613,15 @@ public class RobotContainer {
                 );
     }
 
+    private Command homeFromBallPickup() {
+        return Commands.sequence(
+                    arm.pid(ArmConstants.ballStowPitch, arm.getPlaceRoll()), 
+                    Commands.waitSeconds(0.001),
+                    arm.setState(ArmState.HOME),
+                    elevator.pidToBottom()
+                );
+    }
+
     private Command homeFromHP() {
         arm.placeLeft = manipulator.getPlaceDirection();
         return Commands.sequence(
@@ -565,12 +641,17 @@ public class RobotContainer {
             arm.setState(ArmState.HP),
             Commands.race(
                 Commands.waitUntil(() -> arm.getPitch() < -10.0),
-                arm.pid(ArmConstants.humanPlayer, arm.getPlaceRoll())
+                arm.pid(ArmConstants.preHumanPlayer, 0.0)
             ),
             Commands.parallel(
-                manipulator.intakeUntilHolding(),
-                arm.pid(ArmConstants.humanPlayer, 0),
-                elevator.pid(ElevatorConstants.hp)
+                Commands.sequence(
+                    Commands.parallel(
+                        arm.pid(ArmConstants.preHumanPlayer, 0.0),
+                        elevator.pid(ElevatorConstants.hp)
+                    ),
+                    arm.pid(ArmConstants.humanPlayer, 0)
+                ),
+                manipulator.intakeUntilHolding()
             )
         );
     }
@@ -586,6 +667,15 @@ public class RobotContainer {
 
     private Command humanPlayerFromHome() {
         return humanPlayerFromPlace();
+    }
+
+    private Command humanPlayerDown() {
+        return Commands.parallel(
+            elevator.pid(ElevatorConstants.hpOneCoral),
+            arm.pid(ArmConstants.humanPlayerOneCoral, 0),
+            manipulator.intakeUntilHolding(),
+            arm.setState(ArmState.HP)
+        );
     }
 
     /**

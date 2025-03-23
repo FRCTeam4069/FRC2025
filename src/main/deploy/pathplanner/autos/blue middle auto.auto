@@ -1,0 +1,63 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "middle auto p1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "blue right middle drive p1"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "l4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "release"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "home"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "stop drivetrain"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

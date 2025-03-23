@@ -61,6 +61,7 @@ public class Manipulator extends SubsystemBase {
     }
 
     private double getLeftSensor() {
+        // return 10000.0;
         Measurement measurement = leftSensor.getMeasurement();
         if (measurement == null) {
             return left;
@@ -188,8 +189,31 @@ public class Manipulator extends SubsystemBase {
         };
     }
 
+    public Command outtakeUntilRelease(double speed) {
+        return new Command() {
+            @Override
+            public void execute() {
+                setIntake(ManipulatorConstants.outtakePower);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return isEmpty();
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+        };
+    }
+
     public Command runIntake() {
         return runOnce(() -> setIntake(ManipulatorConstants.intakePower));
+    }
+
+    public Command runIntakeMax() {
+        return runOnce(() -> setIntake(0.95));
     }
 
     public Command stopIntake() {

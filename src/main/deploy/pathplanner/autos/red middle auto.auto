@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "middle auto p1"
+            "pathName": "red middle auto p1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "red right middle drive p1"
           }
         },
         {
@@ -21,7 +27,13 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "place l4 left"
+                        "name": "l4"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "release"
                       }
                     },
                     {

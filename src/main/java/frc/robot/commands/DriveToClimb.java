@@ -24,42 +24,62 @@ import frc.robot.constants.DrivetrainConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.DrivetrainPIDController;
 
-public class PIDToPosition extends Command {
+public class DriveToClimb extends Command {
     private final SwerveDrivetrain drive;
     private final DrivetrainPIDController controller;
     private Pose2d setpoint;
     private Alliance alliance;
-    private boolean l4;
     private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("target pose", Pose2d.struct).publish();
     private StructPublisher<Translation2d> vecPublisher = NetworkTableInstance.getDefault()
         .getStructTopic("translation", Translation2d.struct).publish();
 
-    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean l4) {
+    public DriveToClimb(SwerveDrivetrain drive) {
         this.drive = drive;
-        this.controller = new DrivetrainPIDController(DrivetrainConstants.autoPidToPositionConstants);
-        this.setpoint = pose;
-        this.l4 = l4;
+        this.controller = new DrivetrainPIDController(DrivetrainConstants.pidToPositionConstants);
 
         addRequirements(drive);
     }
 
-    public Pose2d backAway(Pose2d pose, double distance) {
-        var angle = pose.getRotation();
-
-        Translation2d vec = new Translation2d(Units.inchesToMeters(distance), 0.0);
-        vec = vec.rotateBy(angle);
-
-        vecPublisher.set(vec);
-
-        return new Pose2d(pose.getX() + vec.getX(), pose.getY() + vec.getY(), pose.getRotation());
+    public double getDistance(Pose2d currentPose, Pose2d closestPose) {
+        var deltaX = currentPose.getX() - closestPose.getX();
+        var deltaY = currentPose.getY() - closestPose.getY();
+        return Math.hypot(deltaX, deltaY);
     }
 
     @Override
     public void initialize() {
-        if (l4) {
-            setpoint = backAway(setpoint, -7.5);
+        if (DriverStation.getAlliance().isPresent()) {
+            alliance = DriverStation.getAlliance().get();
+        } else {
+            alliance = Alliance.Blue;
         }
+
+        ArrayList<Pose2d> climbPoses = new ArrayList<>();
+
+        if (alliance == Alliance.Blue) {
+            for (Pose2d pose : DrivetrainConstants.blueClimbPoses) {
+                climbPoses.add(pose);
+            }
+        } else {
+            for (Pose2d pose : DrivetrainConstants.redClimbPoses) {
+                climbPoses.add(pose);
+            }
+        }
+
+        Pose2d currentPose = drive.getPose();
+        Pose2d closestPose = climbPoses.get(0);
+        double minimumDistance = Double.MAX_VALUE;
+
+        for (Pose2d climbPose : climbPoses) {
+            double distance = getDistance(currentPose, climbPose);
+            if (distance < minimumDistance) {
+                closestPose = climbPose;
+                minimumDistance = distance;
+            }
+        }
+
+        setpoint = closestPose;
         posePublisher.set(setpoint);
 
         controller.reset(drive.getPose(), ChassisSpeeds.fromRobotRelativeSpeeds(drive.getRobotRelativeSpeeds(), drive.getRotation2d()));

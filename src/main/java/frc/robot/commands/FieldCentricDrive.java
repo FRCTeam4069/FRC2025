@@ -6,7 +6,10 @@ import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DrivetrainConstants;
@@ -29,6 +32,7 @@ public class FieldCentricDrive extends Command {
     private BooleanSupplier humanPlayerRight;
     private BooleanSupplier snapHeading;
     private double lastHeading = 0.0;
+    private Alliance alliance = Alliance.Blue;
 
     private static double controllerDeadband = 0.05;
     /**
@@ -66,6 +70,11 @@ public class FieldCentricDrive extends Command {
     @Override
     public void initialize() {
         headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+        var result = DriverStation.getAlliance();
+        if (result.isPresent()) {
+            alliance = result.get();
+        }
     }
 
     @Override
@@ -113,8 +122,11 @@ public class FieldCentricDrive extends Command {
 
         }
 
-
-        drive.fieldOrientedDrive(outputSpeeds);
+        if (alliance == Alliance.Blue) {
+            drive.fieldOrientedDrive(outputSpeeds);
+        } else {
+            drive.fieldOrientedDrive(outputSpeeds, drive.getRotation2d().rotateBy(Rotation2d.fromDegrees(180.0)));
+        }
 
     }
     

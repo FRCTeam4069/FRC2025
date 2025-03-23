@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "bottom auto p1"
+                  "pathName": "top auto p1"
                 }
               },
               {
@@ -26,7 +26,7 @@
         {
           "type": "named",
           "data": {
-            "name": "drive bottom p1"
+            "name": "blue left p1"
           }
         },
         {
@@ -88,7 +88,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "bottom auto p2"
+                              "pathName": "top auto p2"
                             }
                           },
                           {
@@ -117,13 +117,13 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "bottom auto p3"
+                        "pathName": "top auto p3"
                       }
                     },
                     {
                       "type": "named",
                       "data": {
-                        "name": "drive bottom p2"
+                        "name": "blue left p2"
                       }
                     }
                   ]
@@ -173,7 +173,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

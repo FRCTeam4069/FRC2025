@@ -7,6 +7,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -15,6 +17,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -87,6 +90,18 @@ public class Climber extends SubsystemBase {
         setPower(0);
     }
 
+    public Command stopCommand() {
+        return runOnce(() -> stop());
+    }
+
+    public void stopPivot() {
+        setPivot(0);
+    }
+
+    public Command stopPivotCommand() {
+        return runOnce(() -> stopPivot());
+    }
+
     public Command drive(DoubleSupplier power) {
         return run(() -> setPower(power.getAsDouble()));
     }
@@ -119,9 +134,37 @@ public class Climber extends SubsystemBase {
 
             @Override
             public void end(boolean interrupted) {
-                stop();
+                stopPivot();
             }
         };
+    }
+
+    public Command filp() {
+        return new Command() {
+            @Override
+            public void initialize() {
+                
+            }
+
+            @Override
+            public void execute() {
+                setPivot(0.5);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return getPosition() > Units.degreesToRadians(160.0);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stopPivot();
+            }
+        };
+    }
+
+    public Command defaultCommand(DoubleSupplier power, BooleanSupplier enable) {
+        return Commands.either(drive(power), stopCommand(), enable);
     }
 
     @Override

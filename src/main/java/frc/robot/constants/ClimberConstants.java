@@ -13,8 +13,8 @@ import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
 public class ClimberConstants {
-    public static final int smartCurrentLimit = 40;
-    public static final double ratio = 1.6 * 7.0;
+    public static final int smartCurrentLimit = 30;
+    public static final double ratio = 1.6 * 7.0 * 5.0;
     public static final double pivotRatio = 2.333333333 * 5;
     public static final double radius = Inches.of(0.75/2.0).in(Meters);
 
@@ -28,7 +28,7 @@ public class ClimberConstants {
     static {
         leftConfig
             .inverted(true)
-            .idleMode(IdleMode.kCoast)
+            .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(smartCurrentLimit)
             .openLoopRampRate(0.0)
             .closedLoopRampRate(0.0)
@@ -36,7 +36,7 @@ public class ClimberConstants {
                 .velocityConversionFactor(1.0/ratio * 2.0 * Math.PI * radius * 1.0/60.0)); // to convert m/min to m/s
         rightConfig
             .inverted(false)
-            .idleMode(IdleMode.kCoast)
+            .idleMode(IdleMode.kBrake)
             .smartCurrentLimit(smartCurrentLimit)
             .openLoopRampRate(0.0)
             .closedLoopRampRate(0.0)

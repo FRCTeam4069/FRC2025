@@ -19,8 +19,8 @@ import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
 public class ElevatorConstants {
-    public static final double supplyCurrentLimit = 40.0;
-    public static final double statorCurrentLimit = 100.0;
+    public static final double supplyCurrentLimit = 35.0;
+    public static final double statorCurrentLimit = 40.0;
     public static final double ratio = 10.0;
     public static final double radius = Inches.of(1.855/2.0).in(Meters); // meters
 
@@ -95,19 +95,20 @@ public class ElevatorConstants {
     public volatile static double velocityTolerance = 1.00;
 
     public static final double upperLimit = 1.64;
-    public static final double l1 = Inches.of(1.0).in(Meters);
+    public static final double l1 = Inches.of(0.0).in(Meters);
     public static final double l2 = 0.116;
     public static final double l3 = 0.50;
     public static final double l4 = 1.50;
 
-    public static final double l1Down = 1.0;
+    public static final double l1Down = 0.0;
     public static final double l2Down = 0.0;
     public static final double l3Down = l3 - Units.inchesToMeters(8);
     public static final double l4Down = l4 - Units.inchesToMeters(5.0);
 
     public static final double hp = 0.205;
+    public static final double hpOneCoral = 0.402;
     public static final double ballL2 = 0.69;
-    public static final double ballL3 = 1.08;
+    public static final double ballL3 = 1.04;
     public static final double ballPlace = upperLimit-0.02;
     public static final double groundIntake = 0.205;
 

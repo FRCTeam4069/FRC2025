@@ -109,7 +109,7 @@ public class DriveToReef extends Command {
         if (!l4.getAsBoolean()) {
             setpoint = closestPose;
         } else {
-            setpoint = backAway(closestPose, -7.0);
+            setpoint = backAway(closestPose, -7.5);
         }
         posePublisher.set(setpoint);
 
