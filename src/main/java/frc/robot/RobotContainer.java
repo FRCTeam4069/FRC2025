@@ -213,7 +213,7 @@ public class RobotContainer {
     }
 
     public Command defaultClimberCommand() {
-        return climber.defaultCommand(() -> MathUtil.applyDeadband(Math.pow(controller1.getHID().getRightTriggerAxis(), 3) + (controller0.getHID().getStartButton() ? -1.0 : 0.0), 0.1), (() -> arm.getState() == ArmState.HOME));
+        return climber.defaultCommand(() -> MathUtil.applyDeadband(Math.pow(controller1.getHID().getRightTriggerAxis(), 3) + (controller0.getHID().getStartButton() ? -0.6 : 0.0), 0.1), (() -> arm.getState() == ArmState.HOME));
     }
 
     private Command L1() {
