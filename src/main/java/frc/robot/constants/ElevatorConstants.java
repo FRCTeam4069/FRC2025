@@ -103,13 +103,14 @@ public class ElevatorConstants {
     public static final double l1Down = 0.0;
     public static final double l2Down = 0.0;
     public static final double l3Down = l3 - Units.inchesToMeters(8);
-    public static final double l4Down = l4 - Units.inchesToMeters(5.0);
+    public static final double l4Down = l4 - Units.inchesToMeters(20.0);
 
     public static final double hp = 0.205;
     public static final double hpOneCoral = 0.402;
     public static final double ballL2 = 0.69;
     public static final double ballL3 = 1.04;
     public static final double ballPlace = upperLimit-0.02;
-    public static final double groundIntake = 0.205;
+    public static final double groundIntake = 0.130;
+    public static final double groundIntakeVertical = 0.0;
 
 }

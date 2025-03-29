@@ -14,6 +14,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.util.Units;
 import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 public class ArmConstants {
@@ -78,13 +79,13 @@ public class ArmConstants {
     public static final double ballStowPitch = 40.0 * (Math.PI/180.0); // rads
 
     public static final double lowerLimit = -90.0 * (Math.PI/180.0); // rads
-    public static final double upperLimit = 91.0 * (Math.PI/180.0); // rads
+    public static final double upperLimit = 125.0 * (Math.PI/180.0); // rads
 
     public static final double pitchPlaceRight = 85.0 * (Math.PI/180.0); // rads
 
     public static final double L4Pitch = 55.0*(Math.PI/180.0); // rads
-    public static final double L3Pitch = 15.0*(Math.PI/180.0); // rads
-    public static final double L2Pitch = 15.0*(Math.PI/180.0); // rads
+    public static final double L3Pitch = 16.0*(Math.PI/180.0); // rads
+    public static final double L2Pitch = 16.0*(Math.PI/180.0); // rads
     public static final double L1Pitch = 55.0*(Math.PI/180.0); // rads
 
     public static final double placeRoll = 90.0*(Math.PI/180.0); // rads
@@ -92,9 +93,11 @@ public class ArmConstants {
     public static final double l4PlacePitch = 75.0*(Math.PI/180.0); // rads
 
     public static final double l2ReturnPitch = 39.0*(Math.PI/180.0); // rads
-    public static final double l4ReturnPitch = l4PlacePitch;
+    public static final double l4ReturnPitch = 50.0*(Math.PI/180.0); // rads
 
     public static final double ballPitch = 90.0 * (Math.PI/180.0); // rads
+    public static final double groundIntakeVerticalPitch = 99.0 * (Math.PI/180.0); // rads
+    public static final double groundIntakeHorizontalPitch = 121.0 * (Math.PI/180.0); // rads
 
     public static boolean telemetryEnabled = true;
 }

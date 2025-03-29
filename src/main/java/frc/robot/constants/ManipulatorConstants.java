@@ -24,7 +24,7 @@ public class ManipulatorConstants {
     public static final double kickerRatio = 25.0;
     public static final double kickerRadius = Inches.of(1.059/2.0).in(Meters);
     public static final double intakeRadius = Inches.of(1.059/2.0).in(Meters);
-    public static final double intakePower = 0.80;
+    public static final double intakePower = 0.95;
     public static final double outtakePower = -0.50;
     public static final double intakeHoldPower = 0.5;
     public static final double kickerPlacePower = 1.0;

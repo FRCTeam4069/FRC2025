@@ -220,6 +220,10 @@ public class Manipulator extends SubsystemBase {
         return runOnce(() -> setIntake(0.0));
     }
 
+    public Command setIntakeOnce(double speed) {
+        return runOnce(() -> setIntake(speed));
+    }
+
     public Command defaultCommand(DoubleSupplier power) {
         return new Command() {
             @Override
