@@ -73,6 +73,8 @@ public class Arm extends SubsystemBase {
         BALL_FLOOR_PICKUP,
         BALL_L2_PICKUP,
         BALL_L3_PICKUP,
+        BALL_L2_REMOVE,
+        BALL_L3_REMOVE,
         BALL_PLACE,
         INTAKE_GROUND
     }

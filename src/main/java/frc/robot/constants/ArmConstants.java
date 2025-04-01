@@ -96,6 +96,7 @@ public class ArmConstants {
     public static final double l4ReturnPitch = 50.0*(Math.PI/180.0); // rads
 
     public static final double ballPitch = 90.0 * (Math.PI/180.0); // rads
+    public static final double ballRemovePitch = 30.0 * (Math.PI/180.0); // rads
     public static final double groundIntakeVerticalPitch = 99.0 * (Math.PI/180.0); // rads
     public static final double groundIntakeHorizontalPitch = 121.0 * (Math.PI/180.0); // rads
 

@@ -230,6 +230,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, placeFromHP(ArmState.L1)),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, placeFromPlace(ArmState.L1)),
+                Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlace(ArmState.L1)),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, placeFromPlace(ArmState.L1))
             ), () -> arm.getState());
@@ -246,6 +248,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, placeFromHP(ArmState.L2)),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, placeFromPlace(ArmState.L2)),
+                Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlace(ArmState.L2)),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, placeFromPlace(ArmState.L2))
             ), () -> arm.getState());
@@ -263,6 +267,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, placeFromHP(ArmState.L3)),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, placeFromPlace(ArmState.L3)),
+                Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlace(ArmState.L3)),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, placeFromPlace(ArmState.L3))
             ), () -> arm.getState());
@@ -279,6 +285,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, placeFromHP(ArmState.L4)),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, placeFromPlace(ArmState.L4)),
+                Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlace(ArmState.L4)),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, placeFromPlace(ArmState.L4))
             ), () -> arm.getState());
@@ -295,6 +303,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, homeFromHP()),
                 Map.entry(ArmState.BALL_L2_PICKUP, homeFromBallPickup()),
                 Map.entry(ArmState.BALL_L3_PICKUP, homeFromBallPickup()),
+                Map.entry(ArmState.BALL_L2_REMOVE, homeFromPlace()),
+                Map.entry(ArmState.BALL_L3_REMOVE, homeFromPlace()),
                 Map.entry(ArmState.BALL_PLACE, homeFromPlace()),
                 Map.entry(ArmState.INTAKE_GROUND, homeFromPlace())
             ), () -> arm.getState());
@@ -311,6 +321,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, humanPlayerFromHumanPlayer()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, humanPlayerFromPlace()),
+                Map.entry(ArmState.BALL_L3_REMOVE, humanPlayerFromPlace()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, humanPlayerFromPlace())
             ), () -> arm.getState());
@@ -327,6 +339,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -343,6 +357,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState()).andThen(home());
@@ -359,6 +375,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, ballPickupL2FromHome()),
                 Map.entry(ArmState.BALL_L3_PICKUP, ballPickupL2FromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, ballPickupL2FromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, ballPickupL2FromHome()),
                 Map.entry(ArmState.BALL_PLACE, ballPickupL2FromHome()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -375,6 +393,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, ballPickupL3FromHome()),
                 Map.entry(ArmState.BALL_L3_PICKUP, ballPickupL3FromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, ballPickupL3FromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, ballPickupL3FromHome()),
                 Map.entry(ArmState.BALL_PLACE, ballPickupL3FromHome()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -391,6 +411,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, ballPlaceFromHome()),
                 Map.entry(ArmState.BALL_L3_PICKUP, ballPlaceFromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
                 Map.entry(ArmState.BALL_PLACE, ballPlaceFromHome()),
                 Map.entry(ArmState.INTAKE_GROUND, ballPlaceFromHome())
             ), () -> arm.getState());
@@ -407,6 +429,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -423,6 +447,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, humanPlayerDown()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -439,6 +465,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, groundIntakeVerticalFromHumanPlayer()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, groundIntakeVerticalFromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, groundIntakeVerticalFromHome()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
             ), () -> arm.getState());
@@ -455,8 +483,46 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, groundIntakeHorizontalFromHumanPlayer()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, groundIntakeHorizontalFromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, groundIntakeHorizontalFromHome()),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, new InstantCommand())
+            ), () -> arm.getState());
+    }
+
+    private Command ballRemoveL2() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, ballRemoveL2FromHome()),
+                Map.entry(ArmState.L2, ballRemoveL2FromHome()),
+                Map.entry(ArmState.L3, ballRemoveL2FromHome()),
+                Map.entry(ArmState.L4, ballRemoveL2FromHome()),
+                Map.entry(ArmState.HOME, ballRemoveL2FromHome()),
+                Map.entry(ArmState.HP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_PICKUP, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_L3_PICKUP, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_PLACE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.INTAKE_GROUND, ballRemoveL2FromHome())
+            ), () -> arm.getState());
+    }
+
+    private Command ballRemoveL3() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, ballRemoveL3FromHome()),
+                Map.entry(ArmState.L2, ballRemoveL3FromHome()),
+                Map.entry(ArmState.L3, ballRemoveL3FromHome()),
+                Map.entry(ArmState.L4, ballRemoveL3FromHome()),
+                Map.entry(ArmState.HOME, ballRemoveL3FromHome()),
+                Map.entry(ArmState.HP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_PICKUP, ballRemoveL3FromHome()),
+                Map.entry(ArmState.BALL_L3_PICKUP, ballRemoveL3FromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_PLACE, ballRemoveL3FromHome()),
+                Map.entry(ArmState.INTAKE_GROUND, ballRemoveL3FromHome())
             ), () -> arm.getState());
     }
 
@@ -474,6 +540,24 @@ public class RobotContainer {
             manipulator.runIntake(),
             arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll()),
             elevator.pid(ElevatorConstants.ballL3),
+            arm.setState(ArmState.BALL_L3_PICKUP)
+        );
+    }
+
+    private Command ballRemoveL2FromHome() {
+        return Commands.parallel(
+            manipulator.setIntakeOnce(ManipulatorConstants.outtakePower),
+            arm.pid(ArmConstants.ballRemovePitch, 0.0),
+            elevator.pid(ElevatorConstants.ballRemoveL2),
+            arm.setState(ArmState.BALL_L2_PICKUP)
+        );
+    }
+
+    private Command ballRemoveL3FromHome() {
+        return Commands.parallel(
+            manipulator.setIntakeOnce(ManipulatorConstants.outtakePower),
+            arm.pid(ArmConstants.ballRemovePitch, 0.0),
+            elevator.pid(ElevatorConstants.ballRemoveL3),
             arm.setState(ArmState.BALL_L3_PICKUP)
         );
     }
@@ -692,6 +776,7 @@ public class RobotContainer {
 
     private Command homeFromPlace() {
         return Commands.sequence(
+                    manipulator.stopIntake(),
                     arm.pid(ArmConstants.rotatePoint, arm.getPlaceRoll()), 
                     Commands.waitSeconds(0.001),
                     arm.setState(ArmState.HOME),
