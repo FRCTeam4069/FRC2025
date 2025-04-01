@@ -21,7 +21,7 @@ import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 public class ElevatorConstants {
     public static final double supplyCurrentLimit = 35.0;
     public static final double statorCurrentLimit = 40.0;
-    public static final double ratio = 10.0;
+    public static final double ratio = 4.0;
     public static final double radius = Inches.of(1.855/2.0).in(Meters); // meters
 
     public static final TalonFXConfiguration leftConfig = new TalonFXConfiguration()

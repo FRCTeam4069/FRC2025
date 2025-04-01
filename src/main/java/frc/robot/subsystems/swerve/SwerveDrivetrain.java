@@ -101,13 +101,13 @@ public class SwerveDrivetrain extends SubsystemBase {
                 new Translation3d(Units.inchesToMeters(0.375),
                                 Units.inchesToMeters(10.875),
                                 Units.inchesToMeters(11.875)),
-                new Rotation3d(Math.toRadians(-8.0), Math.toRadians(-41.0), Math.toRadians(-164.8)));
+                new Rotation3d(Math.toRadians(-8.0), Math.toRadians(-10.0), Math.toRadians(-164.8)));
 
     private final Transform3d rightBackTransform = new Transform3d(
                 new Translation3d(Units.inchesToMeters(0.375),
                                 Units.inchesToMeters(-10.875),
                                 Units.inchesToMeters(11.875)),
-                new Rotation3d(Math.toRadians(12.0), Math.toRadians(-39.8), Math.toRadians(165.0)));
+                new Rotation3d(Math.toRadians(12.0), Math.toRadians(-11.0), Math.toRadians(165.0)));
 
     private VisionBetter visionLF;
     private VisionBetter visionRF;

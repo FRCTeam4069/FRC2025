@@ -163,6 +163,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ground intake", groundIntakeVertical());
         NamedCommands.registerCommand("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0)), false)); //right
         NamedCommands.registerCommand("drive bottom p2", new PIDToPosition(drive, new Pose2d(3.61, 2.86, Rotation2d.fromDegrees(60.0)), false)); //left
+        NamedCommands.registerCommand("drive bottom p3", new PIDToPosition(drive, new Pose2d(4.00, 2.87, Rotation2d.fromDegrees(60.0)), true));
         NamedCommands.registerCommand("blue left p1", new PIDToPosition(drive, new Pose2d(5.30, 5.02, Rotation2d.fromDegrees(-120.0)), true));
         NamedCommands.registerCommand("blue left p2", new PIDToPosition(drive, new Pose2d(3.72, 5.03, Rotation2d.fromDegrees(-60.0)), true));
         NamedCommands.registerCommand("red right drive p1", new PIDToPosition(drive, new Pose2d(12.59, 5.22, Rotation2d.fromDegrees(-60.0)), true));
@@ -550,7 +551,21 @@ public class RobotContainer {
                 break;
             case L2:
                 armPitch = ArmConstants.L2Pitch;
-                break;
+
+                return Commands.sequence(
+                    Commands.parallel(
+                        manipulator.setIntakeOnce(outtakeSpeed),
+                        elevator.pid(Elevator.armStateToDownPosition(initialState)),
+                        arm.pid(armReturnPitch, armRoll)
+                    ),
+                    Commands.parallel(
+                        arm.setState(ArmState.HOME),
+                        manipulator.outtakeUntilRelease(outtakeSpeed),
+                        elevator.pidToBottom()
+                    ),
+                    Commands.waitSeconds(2.0),
+                    arm.pid(ArmConstants.rotatePoint, armRoll)
+                );
             case L3:
                 armPitch = ArmConstants.L3Pitch;
                 break;
@@ -573,8 +588,7 @@ public class RobotContainer {
                         elevator.pidToBottom(),
                         arm.pid(ArmConstants.rotatePoint, armRoll)
                     )
-
-                    );
+                );
             default:
                 break;
         }
@@ -591,8 +605,7 @@ public class RobotContainer {
                 elevator.pidToBottom(),
                 arm.pid(ArmConstants.rotatePoint, armRoll)
             )
-            
-            );
+        );
     }
 
     /**
