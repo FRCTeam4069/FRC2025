@@ -98,7 +98,7 @@ public class Arm extends SubsystemBase {
         MagnetSensorConfigs encoderConfig = new MagnetSensorConfigs();
         encoderConfig.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         encoderConfig.AbsoluteSensorDiscontinuityPoint = 0.5;
-        encoderConfig.MagnetOffset = 0.3327;
+        encoderConfig.MagnetOffset = -0.332764;
         encoder.getConfigurator().apply(encoderConfig);
 
         left.setPosition(Radians.of(ArmConstants.startingPosition).in(Rotations));

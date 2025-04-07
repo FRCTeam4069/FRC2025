@@ -71,7 +71,7 @@ public class VisionBetter {
     private double lowestDistance = Double.MAX_VALUE;
 
     private static final double tooFar = 1.3;
-    private static final double closeEnough = 1.7;
+    private static final double closeEnough = 2.7;
 
     public Matrix<N3, N1> getStdDeviations() {
         if (!pose.isPresent()) {

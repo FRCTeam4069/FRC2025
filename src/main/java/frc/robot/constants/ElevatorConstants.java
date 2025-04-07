@@ -19,10 +19,10 @@ import frc.robot.constants.DrivetrainConstants.FFCoefficients;
 import frc.robot.constants.DrivetrainConstants.PIDCoefficients;
 
 public class ElevatorConstants {
-    public static final double supplyCurrentLimit = 35.0;
+    public static final double supplyCurrentLimit = 40.0;
     public static final double statorCurrentLimit = 40.0;
-    public static final double ratio = 4.0;
-    public static final double radius = Inches.of(1.855/2.0).in(Meters); // meters
+    public static final double ratio = 7.0;
+    public static final double radius = Inches.of(1.502/2.0).in(Meters); // meters
 
     public static final TalonFXConfiguration leftConfig = new TalonFXConfiguration()
         .withCurrentLimits(
@@ -89,28 +89,29 @@ public class ElevatorConstants {
     public volatile static FFCoefficients ffCoefficients = new FFCoefficients(0.0, 0.0, 0.0, 0.015);
 
     // public volatile static Constraints constraints = new Constraints(1.6, 4.0);
-    public volatile static Constraints constraints = new Constraints(1.6, 10.0);
+    public volatile static Constraints constraints = new Constraints(1.6, 7.5);
 
     public volatile static double positionTolerance = 0.02;
     public volatile static double velocityTolerance = 1.00;
 
-    public static final double upperLimit = 1.64;
+    public static final double upperLimit = 1.55;
     public static final double l1 = Inches.of(0.0).in(Meters);
     public static final double l2 = 0.116;
     public static final double l3 = 0.50;
-    public static final double l4 = 1.50;
+    public static final double l4 = 1.48;
+    public static final double l4Auto = 1.44;
 
     public static final double l1Down = 0.0;
     public static final double l2Down = 0.0;
     public static final double l3Down = l3 - Units.inchesToMeters(8);
     public static final double l4Down = l4 - Units.inchesToMeters(20.0);
 
-    public static final double hp = 0.205;
+    public static final double hp = 0.202; //0.205;
     public static final double hpOneCoral = 0.402;
     public static final double ballL2 = 0.69;
     public static final double ballL3 = 1.04;
-    public static final double ballRemoveL2 = 0.69;
-    public static final double ballRemoveL3 = 1.04;
+    public static final double ballRemoveL2 = 0.325;
+    public static final double ballRemoveL3 = 0.69;
     public static final double ballPlace = upperLimit-0.02;
     public static final double groundIntake = 0.130;
     public static final double groundIntakeVertical = 0.0;

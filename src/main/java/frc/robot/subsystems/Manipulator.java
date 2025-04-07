@@ -193,7 +193,7 @@ public class Manipulator extends SubsystemBase {
         return new Command() {
             @Override
             public void execute() {
-                setIntake(ManipulatorConstants.outtakePower);
+                setIntake(speed);
             }
 
             @Override

@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class DrivetrainConstants {
 
@@ -101,6 +102,70 @@ public class DrivetrainConstants {
 
     };
 
+    public static enum ReefPoses{
+        TopLeft,
+        MiddleLeft,
+        BottomLeft,
+        TopRight,
+        MiddleRight,
+        BottomRight;
+    };
+
+    public static enum HumanPlayerStations{
+        BlueLeft,
+        BlueRight,
+        RedLeft,
+        RedRight
+    };
+
+    public static Pose2d getReefPose(HumanPlayerStations station, ReefPoses reefPose) {
+        Pose2d[] array;
+        
+        switch (station) {
+            case BlueLeft:
+                array = blueLeftReefPoses;
+                break;
+            case BlueRight:
+                array = blueRightReefPoses;
+                break;
+            case RedLeft:
+                array = redLeftReefPoses;
+                break;
+            case RedRight:
+                array = redRightReefPoses;
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid HumanPlayerStation: " + station);
+        }
+
+        Pose2d result = new Pose2d();
+
+        switch (reefPose) {
+            case TopLeft:
+                result = array[0];
+                break;
+            case MiddleLeft:
+                result = array[1];
+                break;
+            case BottomLeft:
+                result = array[2];
+                break;
+            case TopRight:
+                result = array[3];
+                break;
+            case MiddleRight:
+                result = array[4];
+                break;
+            case BottomRight:
+                result = array[5];
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid ReefPose: " + reefPose);
+        }
+
+        return result;
+    }
+
     public static final Pose2d[] blueClimbPoses = new Pose2d[]{
         new Pose2d(7.8, 7.26, Rotation2d.fromDegrees(180.0)),
         new Pose2d(7.8, 6.160, Rotation2d.fromDegrees(180.0)),
@@ -170,7 +235,7 @@ public class DrivetrainConstants {
         new Tolerances(0.02, 0.20));
 
     public static volatile DrivetrainPIDConstants autoPidToPositionConstants = new DrivetrainPIDConstants(
-        new PIDCoefficients(6.0, 0.0, 0.0), 
+        new PIDCoefficients(6.0, 0.0, 0.02), 
         new PIDCoefficients(8.0, 0.0, 0.6), 
         new Constraints(5.0, 3.0), 
         new Constraints(10.0, 10.0), 

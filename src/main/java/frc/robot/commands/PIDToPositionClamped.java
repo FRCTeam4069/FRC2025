@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,26 +25,27 @@ import frc.robot.constants.DrivetrainConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.DrivetrainPIDController;
 
-public class PIDToPosition extends Command {
+public class PIDToPositionClamped extends Command {
     private final SwerveDrivetrain drive;
     private final DrivetrainPIDController controller;
     private Pose2d setpoint;
-    private Alliance alliance;
     private boolean l4;
     private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("target pose", Pose2d.struct).publish();
     private StructPublisher<Translation2d> vecPublisher = NetworkTableInstance.getDefault()
         .getStructTopic("translation", Translation2d.struct).publish();
+    private ArrayList<Pair<Double, Double>> velocityTargets = new ArrayList<>();
 
-    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose) {
-        this(drive, pose, false);
+    public PIDToPositionClamped(SwerveDrivetrain drive, Pose2d pose, ArrayList<Pair<Double, Double>> velocityTargets) {
+        this(drive, pose, false, velocityTargets);
     }
 
-    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean l4) {
+    public PIDToPositionClamped(SwerveDrivetrain drive, Pose2d pose, boolean l4, ArrayList<Pair<Double, Double>> velocityTargets) {
         this.drive = drive;
         this.controller = new DrivetrainPIDController(DrivetrainConstants.autoPidToPositionConstants);
         this.setpoint = pose;
         this.l4 = l4;
+        this.velocityTargets = velocityTargets;
 
         addRequirements(drive);
     }

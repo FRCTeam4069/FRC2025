@@ -17,6 +17,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -109,24 +110,30 @@ public class RobotContainer {
         // controller0.povLeft().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(-1.0)));
         // controller0.povRight().onTrue(drive.increaseOffset(Rotation2d.fromDegrees(1.0)));
 
-        controller0.povLeft().onTrue(new DriveToReef(drive, true, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
-        controller0.povRight().onTrue(new DriveToReef(drive, false, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
+        // controller0.povLeft().onTrue(new DriveToReef(drive, true, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
+        // controller0.povRight().onTrue(new DriveToReef(drive, false, () -> controller0.getHID().getYButton())).onFalse(drive.stopOnceCommand());
+        controller0.leftBumper().onTrue(new DriveToReef(drive, true, () -> false)).onFalse(drive.stopOnceCommand());
+        controller0.rightBumper().onTrue(new DriveToReef(drive, false, () -> false)).onFalse(drive.stopOnceCommand());
+        controller0.leftTrigger().onTrue(new DriveToReef(drive, true, () -> true)).onFalse(drive.stopOnceCommand());
+        controller0.rightTrigger().onTrue(new DriveToReef(drive, false, () -> true)).onFalse(drive.stopOnceCommand());
         controller0.a().onTrue(new DriveToClimb(drive)).onFalse(drive.stopOnceCommand());
 
+        controller0.povLeft().onTrue(ballRemoveL2());
+        controller0.povRight().onTrue(ballRemoveL3());
 
         // controller1.a().onTrue(arm.pid(ArmConstants.humanPlayer, 0));
         // controller1.b().onTrue(arm.pid(ArmConstants.rotatePoint, 0));
         // controller1.x().onTrue(arm.pid(ArmConstants.humanPlayer, ArmConstants.placeRoll));
         // controller1.y().onTrue(arm.pid(ArmConstants.rotatePoint, ArmConstants.placeRoll));
 
-
         // controller1.a().onTrue(elevator.pid(0.0));
         // controller1.b().onTrue(elevator.pid(0.3));
-        // controller1.y().onTrue(elevator.pid(1.0));
+        // controller1.x().onTrue(elevator.pid(1.0));
+        // controller1.y().onTrue(elevator.pid(1.3));
 
 
-        controller1.b().onTrue(humanPlayer());
         controller1.a().onTrue(home());
+        controller1.b().onTrue(humanPlayer());
         controller1.povLeft().onTrue(L2());
         controller1.povRight().onTrue(L3());
         controller1.povUp().onTrue(L4());
@@ -141,6 +148,7 @@ public class RobotContainer {
 
         // controller1.leftBumper().onTrue(climber.pid(ClimberConstants.forwardLimit));
         controller1.leftTrigger(0.8).onTrue(climbStart());
+        controller1.rightTrigger(0.8).onTrue(climber.winch());
         controller0.back().onTrue(groundIntakeHorizontal());
      
         // controller1.rightTrigger(0.05).onTrue(manipulator.runIntake()).onFalse(manipulator.stopIntake());
@@ -156,7 +164,7 @@ public class RobotContainer {
     private void registerAutoCommands() {
         NamedCommands.registerCommand("stop drivetrain", drive.stopCommand());
         NamedCommands.registerCommand("place l4", placeL4());
-        NamedCommands.registerCommand("l4", L4().andThen(place().withTimeout(0.5)));
+        NamedCommands.registerCommand("l4", L4Auto().andThen(Commands.waitSeconds(0.01)).andThen(place().withTimeout(1.0)));
         NamedCommands.registerCommand("release", release());
         NamedCommands.registerCommand("human player", humanPlayer());
         NamedCommands.registerCommand("home", home());
@@ -178,7 +186,7 @@ public class RobotContainer {
 
     private Command placeL4() {
         return Commands.sequence(
-            L4(),
+            L4Auto(),
             place().withTimeout(1.0),
             release()
         );
@@ -216,7 +224,8 @@ public class RobotContainer {
     }
 
     public Command defaultClimberCommand() {
-        return climber.defaultCommand(() -> MathUtil.applyDeadband(Math.pow(controller1.getHID().getRightTriggerAxis(), 3) + (controller0.getHID().getStartButton() ? -0.6 : 0.0), 0.1), (() -> arm.getState() == ArmState.HOME));
+        // return climber.defaultCommand(() -> MathUtil.applyDeadband(Math.pow(controller1.getHID().getRightTriggerAxis(), 3) + (controller0.getHID().getStartButton() ? -0.6 : 0.0), 0.1), (() -> arm.getState() == ArmState.HOME));
+        return climber.drive(() -> controller1.getHID().getRightY());
     }
 
     private Command L1() {
@@ -289,6 +298,24 @@ public class RobotContainer {
                 Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlace(ArmState.L4)),
                 Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
                 Map.entry(ArmState.INTAKE_GROUND, placeFromPlace(ArmState.L4))
+            ), () -> arm.getState());
+    }
+
+    private Command L4Auto() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.L2, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.L3, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.L4, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.HOME, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.HP, placeFromHPAuto(ArmState.L4)),
+                Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_REMOVE, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.BALL_L3_REMOVE, placeFromPlaceAuto(ArmState.L4)),
+                Map.entry(ArmState.BALL_PLACE, new InstantCommand()),
+                Map.entry(ArmState.INTAKE_GROUND, placeFromPlaceAuto(ArmState.L4))
             ), () -> arm.getState());
     }
 
@@ -425,7 +452,7 @@ public class RobotContainer {
                 Map.entry(ArmState.L2, new InstantCommand()),
                 Map.entry(ArmState.L3, new InstantCommand()),
                 Map.entry(ArmState.L4, new InstantCommand()),
-                Map.entry(ArmState.HOME, climber.filp().withTimeout(0.75).andThen(climber.stopPivotCommand())),
+                Map.entry(ArmState.HOME, climber.filp().withTimeout(3.0).andThen(climber.stopPivotCommand())),
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L3_PICKUP, new InstantCommand()),
@@ -519,8 +546,8 @@ public class RobotContainer {
                 Map.entry(ArmState.HP, new InstantCommand()),
                 Map.entry(ArmState.BALL_L2_PICKUP, ballRemoveL3FromHome()),
                 Map.entry(ArmState.BALL_L3_PICKUP, ballRemoveL3FromHome()),
-                Map.entry(ArmState.BALL_L2_REMOVE, ballRemoveL2FromHome()),
-                Map.entry(ArmState.BALL_L3_REMOVE, ballRemoveL2FromHome()),
+                Map.entry(ArmState.BALL_L2_REMOVE, ballRemoveL3FromHome()),
+                Map.entry(ArmState.BALL_L3_REMOVE, ballRemoveL3FromHome()),
                 Map.entry(ArmState.BALL_PLACE, ballRemoveL3FromHome()),
                 Map.entry(ArmState.INTAKE_GROUND, ballRemoveL3FromHome())
             ), () -> arm.getState());
@@ -547,18 +574,18 @@ public class RobotContainer {
     private Command ballRemoveL2FromHome() {
         return Commands.parallel(
             manipulator.setIntakeOnce(ManipulatorConstants.outtakePower),
-            arm.pid(ArmConstants.ballRemovePitch, 0.0),
+            arm.pid(ArmConstants.l2BallRemovePitch, 0.0),
             elevator.pid(ElevatorConstants.ballRemoveL2),
-            arm.setState(ArmState.BALL_L2_PICKUP)
+            arm.setState(ArmState.BALL_L2_REMOVE)
         );
     }
 
     private Command ballRemoveL3FromHome() {
         return Commands.parallel(
             manipulator.setIntakeOnce(ManipulatorConstants.outtakePower),
-            arm.pid(ArmConstants.ballRemovePitch, 0.0),
+            arm.pid(ArmConstants.l3BallRemovePitch, 0.0),
             elevator.pid(ElevatorConstants.ballRemoveL3),
-            arm.setState(ArmState.BALL_L3_PICKUP)
+            arm.setState(ArmState.BALL_L3_REMOVE)
         );
     }
 
@@ -632,7 +659,8 @@ public class RobotContainer {
                 armReturnPitch = ArmConstants.L1Pitch;
                 armRoll = 0.0;
                 outtakeSpeed = -0.05;
-                break;
+                return manipulator.outtakeUntilRelease(-0.20);
+                // break;
             case L2:
                 armPitch = ArmConstants.L2Pitch;
 
@@ -670,8 +698,9 @@ public class RobotContainer {
                         arm.setState(ArmState.HOME),
                         manipulator.outtakeUntilRelease(outtakeSpeed),
                         elevator.pidToBottom(),
-                        arm.pid(ArmConstants.rotatePoint, armRoll)
-                    )
+                        arm.pid(ArmConstants.downPitch, armRoll)
+                    ),
+                    arm.pid(ArmConstants.rotatePoint, armRoll)
                 );
             default:
                 break;
@@ -687,8 +716,9 @@ public class RobotContainer {
                 arm.setState(ArmState.HOME),
                 manipulator.outtakeUntilRelease(outtakeSpeed),
                 elevator.pidToBottom(),
-                arm.pid(ArmConstants.rotatePoint, armRoll)
-            )
+                arm.pid(ArmConstants.downPitch, armRoll)
+            ),
+            arm.pid(ArmConstants.rotatePoint, armRoll)
         );
     }
 
@@ -731,6 +761,89 @@ public class RobotContainer {
             arm.pid(armPitch, armRoll)
         );
     }
+
+    /**
+     * 
+     * @param targetState must be L1-L4
+     * @return
+     */
+    private Command placeFromPlaceAuto(Arm.ArmState targetState) {
+        assert (targetState == ArmState.L1 || targetState == ArmState.L2 || targetState == ArmState.L3 || targetState == ArmState.L4);
+        double elevatorPosition = elevator.getPosition();
+        double armPitch = ArmConstants.rotatePoint;
+        double armRoll = arm.getPlaceRoll();
+        switch (targetState) {
+            case L1:
+                elevatorPosition = ElevatorConstants.l1;
+                armPitch = ArmConstants.L1Pitch;
+                armRoll = 0.0;
+                break;
+            case L2:
+                elevatorPosition = ElevatorConstants.l2;
+                armPitch = ArmConstants.L2Pitch;
+                break;
+            case L3:
+                elevatorPosition = ElevatorConstants.l3;
+                armPitch = ArmConstants.L3Pitch;
+                break;
+            case L4:
+                elevatorPosition = ElevatorConstants.l4Auto;
+                armPitch = ArmConstants.L4Pitch;
+                break;
+            default:
+                break;
+        }
+
+        return Commands.sequence(
+            arm.pid(ArmConstants.rotatePoint, armRoll),
+            elevator.pid(elevatorPosition),
+            arm.setState(targetState),
+            arm.pid(armPitch, armRoll)
+        );
+    }
+    
+    /**
+     * 
+     * @param targetState must be L1-L4
+     * @return
+     */
+    private Command placeFromHPAuto(Arm.ArmState targetState) {
+        assert (targetState == ArmState.L1 || targetState == ArmState.L2 || targetState == ArmState.L3 || targetState == ArmState.L4);
+        arm.placeLeft = manipulator.getPlaceDirection();
+        double elevatorPosition = elevator.getPosition();
+        double armPitch = ArmConstants.rotatePoint;
+        double armRoll = arm.getPlaceRoll();
+        switch (targetState) {
+            case L1:
+                elevatorPosition = ElevatorConstants.l1;
+                armPitch = ArmConstants.L1Pitch;
+                break;
+            case L2:
+                elevatorPosition = ElevatorConstants.l2;
+                armPitch = ArmConstants.L2Pitch;
+                break;
+            case L3:
+                elevatorPosition = ElevatorConstants.l3;
+                armPitch = ArmConstants.L3Pitch;
+                break;
+            case L4:
+                elevatorPosition = ElevatorConstants.l4Auto;
+                armPitch = ArmConstants.L4Pitch;
+                break;
+            default:
+                break;
+        }
+
+        return Commands.sequence(
+            manipulator.stopIntake(),
+            elevator.pidToBottom(),
+            arm.pid(ArmConstants.rotatePoint, armRoll),
+            arm.setState(targetState),
+            elevator.pid(elevatorPosition),
+            arm.pid(armPitch, armRoll)
+        );
+    }
+
     
     /**
      * 
@@ -820,7 +933,7 @@ public class RobotContainer {
                         arm.pid(ArmConstants.preHumanPlayer, 0.0),
                         elevator.pid(ElevatorConstants.hp)
                     ),
-                    arm.pid(ArmConstants.humanPlayer, 0)
+                    arm.pid(ArmConstants.humanPlayer, ArmConstants.humanPlayerRoll)
                 ),
                 manipulator.intakeUntilHolding()
             )
@@ -830,7 +943,7 @@ public class RobotContainer {
     private Command humanPlayerFromHumanPlayer() {
         return Commands.parallel(
             elevator.pid(ElevatorConstants.hp),
-            arm.pid(ArmConstants.humanPlayer, 0),
+            arm.pid(ArmConstants.humanPlayer, ArmConstants.humanPlayerRoll),
             manipulator.intakeUntilHolding(),
             arm.setState(ArmState.HP)
         );
@@ -843,7 +956,7 @@ public class RobotContainer {
     private Command humanPlayerDown() {
         return Commands.parallel(
             elevator.pid(ElevatorConstants.hpOneCoral),
-            arm.pid(ArmConstants.humanPlayerOneCoral, 0),
+            arm.pid(ArmConstants.humanPlayerOneCoral, ArmConstants.humanPlayerRoll),
             manipulator.intakeUntilHolding(),
             arm.setState(ArmState.HP)
         );

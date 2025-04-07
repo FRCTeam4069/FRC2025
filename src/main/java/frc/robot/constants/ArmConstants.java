@@ -72,6 +72,7 @@ public class ArmConstants {
     public static final double startingPosition = 0.0 * (Math.PI/180.0); // rads
     public static final double balancePoint = 0.0 * (Math.PI/180.0); // rads
     public static final double rotatePoint = 16.0 * (Math.PI/180.0); // rads
+    public static final double downPitch = 20.0 * (Math.PI/180.0); // rads
     public static final double humanPlayer = -32.0 * (Math.PI/180.0); // rads
     public static final double humanPlayerOneCoral = -54.0 * (Math.PI/180.0); // rads
     public static final double preHumanPlayer = -25.0 * (Math.PI/180.0); // rads
@@ -96,9 +97,12 @@ public class ArmConstants {
     public static final double l4ReturnPitch = 50.0*(Math.PI/180.0); // rads
 
     public static final double ballPitch = 90.0 * (Math.PI/180.0); // rads
-    public static final double ballRemovePitch = 30.0 * (Math.PI/180.0); // rads
+    public static final double l2BallRemovePitch = 32.5 * (Math.PI/180.0); // rads
+    public static final double l3BallRemovePitch = 21.5 * (Math.PI/180.0); // rads
     public static final double groundIntakeVerticalPitch = 99.0 * (Math.PI/180.0); // rads
     public static final double groundIntakeHorizontalPitch = 121.0 * (Math.PI/180.0); // rads
+
+    public static final double humanPlayerRoll = 0.0 * (Math.PI/180.0); // rads
 
     public static boolean telemetryEnabled = true;
 }

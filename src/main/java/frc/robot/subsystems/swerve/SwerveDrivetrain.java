@@ -101,13 +101,13 @@ public class SwerveDrivetrain extends SubsystemBase {
                 new Translation3d(Units.inchesToMeters(0.375),
                                 Units.inchesToMeters(10.875),
                                 Units.inchesToMeters(11.875)),
-                new Rotation3d(Math.toRadians(-8.0), Math.toRadians(-10.0), Math.toRadians(-164.8)));
+                new Rotation3d(Math.toRadians(-1.45), Math.toRadians(-9.5), Math.toRadians(-173.0)));
 
     private final Transform3d rightBackTransform = new Transform3d(
                 new Translation3d(Units.inchesToMeters(0.375),
                                 Units.inchesToMeters(-10.875),
                                 Units.inchesToMeters(11.875)),
-                new Rotation3d(Math.toRadians(12.0), Math.toRadians(-11.0), Math.toRadians(165.0)));
+                new Rotation3d(Math.toRadians(2.60), Math.toRadians(-9.0), Math.toRadians(177.0)));
 
     private VisionBetter visionLF;
     private VisionBetter visionRF;
@@ -130,8 +130,10 @@ public class SwerveDrivetrain extends SubsystemBase {
         visionPoseEstimator = new SwerveDrivePoseEstimator(kinematics, getRawRotation2d(), getModulePositions(), startingPose, VecBuilder.fill(0.8, 0.8, 0.05), VecBuilder.fill(0.5, 0.5, 2.0));
         visionLF = new VisionBetter("Left_Front", leftFrontTransform, startingPose);
         visionRF = new VisionBetter("Right_Front", rightFrontTransform, startingPose);
-        visionLB = new VisionBetter("Left_Side", leftBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
-        visionRB = new VisionBetter("Right_Side", rightBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
+        // visionLB = new VisionBetter("Left_Side", leftBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
+        // visionRB = new VisionBetter("Right_Side", rightBackTransform, startingPose, VecBuilder.fill(5.0, 5.0, 5.0), VecBuilder.fill(0.8, 0.8, 3.0));
+        visionLB = new VisionBetter("Left_Side", leftBackTransform, startingPose);
+        visionRB = new VisionBetter("Right_Side", rightBackTransform, startingPose);
 
         try{
             DrivetrainConstants.config = RobotConfig.fromGUISettings();
@@ -316,7 +318,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        //var pose = poseEstimator.getPoseMeters();
+        // var pose = poseEstimator.getPoseMeters();
         var pose = visionPoseEstimator.getEstimatedPosition();
         return pose;
     }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -57,6 +58,9 @@ public class Climber extends SubsystemBase {
     }
 
     public void setPower(double power) {
+        if (getPosition() < ClimberConstants.climbPos) {
+            power = MathUtil.clamp(power, -1.0, 0.0);
+        }
         left.set(power);
         right.set(power);
     }
@@ -70,7 +74,7 @@ public class Climber extends SubsystemBase {
      * @return rads
      */
     private double getRawPosition() {
-        var position = pivot.getEncoder().getPosition() * Math.PI;
+        var position = pivot.getEncoder().getPosition() * Math.PI * 2.0;
         return position;
     }
 
@@ -79,7 +83,7 @@ public class Climber extends SubsystemBase {
      * @return rads
      */
     public double getPosition() {
-        return currentPosition;
+        return getRawPosition();
     }
 
     public double getVelocity() {
@@ -148,17 +152,45 @@ public class Climber extends SubsystemBase {
 
             @Override
             public void execute() {
-                setPivot(0.5);
+                if (getPosition() > 2.0) {
+                    setPivot(0.25);
+                } else {
+                    setPivot(0.75);
+                }
             }
 
             @Override
             public boolean isFinished() {
-                return getPosition() > Units.degreesToRadians(160.0);
+                return getPosition() >= 3.30;
             }
 
             @Override
             public void end(boolean interrupted) {
                 stopPivot();
+            }
+        };
+    }
+
+    public Command winch() {
+        return new Command() {
+            @Override
+            public void initialize() {
+                
+            }
+
+            @Override
+            public void execute() {
+                setPower(1.0);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return getPosition() <= ClimberConstants.climbPos;
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                stop();
             }
         };
     }
@@ -169,11 +201,11 @@ public class Climber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        currentPosition = getRawPosition() - positionOffset;
 
         SmartDashboard.putNumber("climber left pos", left.getEncoder().getPosition());
         SmartDashboard.putNumber("climber right pos", right.getEncoder().getPosition());
         SmartDashboard.putNumber("climber pivot pos", pivot.getEncoder().getPosition());
+        SmartDashboard.putNumber("climber pos", getPosition());
         SmartDashboard.putNumber("climber pivot pos deg", Units.radiansToDegrees(getPosition()));
         SmartDashboard.putNumber("climber pivot power", pivot.get());
         SmartDashboard.putNumber("climber power", left.get());

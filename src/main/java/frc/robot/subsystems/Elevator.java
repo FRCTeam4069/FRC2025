@@ -32,7 +32,6 @@ public class Elevator extends SubsystemBase {
 
     private DutyCycleOut leftOutput = new DutyCycleOut(0.0);
     private DutyCycleOut rightOutput = new DutyCycleOut(0.0);
-    private PositionVoltage request = new PositionVoltage(0.0);
 
     private ProfiledPIDController pid = new ProfiledPIDController(
         ElevatorConstants.pidCoefficients.kP(), 
@@ -65,6 +64,7 @@ public class Elevator extends SubsystemBase {
         left.getConfigurator().apply(ElevatorConstants.leftConfig);
         // right.getConfigurator().apply(ElevatorConstants.slot0Configs);
         // left.getConfigurator().apply(ElevatorConstants.slot0Configs);
+
         left.setControl(new Follower(right.getDeviceID(), true));
 
         right.setPosition(0);
@@ -82,6 +82,12 @@ public class Elevator extends SubsystemBase {
     }
 
     public void setPower(double power) {
+        if (getPosition() < 0.1005) {
+            power = MathUtil.clamp(power, -0.2, 1.0);
+        } else if (getPosition() < 0.15) {
+            power = MathUtil.clamp(power, -0.5, 1.0);
+        }
+
         right.setControl(rightOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
         // left.setControl(leftOutput.withOutput(power).withLimitReverseMotion(atBottom).withLimitForwardMotion(upperLimit()));
     }

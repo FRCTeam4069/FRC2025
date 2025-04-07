@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 1.5245966372282609,
-        "y": 0.8068867421757864
+        "y": 0.76
       },
       "prevControl": {
         "x": 1.8687424990388886,
-        "y": 1.2983779687491808
+        "y": 1.2514912265733944
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "hp bottom"
+      "linkedName": null
     }
   ],
   "rotationTargets": [
@@ -41,7 +41,7 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0.8323949898785425,
+      "minWaypointRelativePos": 0.794139043522267,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.75,
