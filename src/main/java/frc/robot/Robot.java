@@ -87,7 +87,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-        m_robotContainer.drive.removeDefaultCommand();
+        m_robotContainer.drive.setDefaultCommand(m_robotContainer.drive.stopCommand());
         m_robotContainer.elevator.removeDefaultCommand();
         m_robotContainer.arm.removeDefaultCommand();
         m_robotContainer.drive.driverMode(false);

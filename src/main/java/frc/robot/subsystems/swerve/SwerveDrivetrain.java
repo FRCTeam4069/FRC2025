@@ -331,6 +331,10 @@ public class SwerveDrivetrain extends SubsystemBase {
         resetPose(new Pose2d(getPose().getTranslation(), newHeading));
     }
 
+    public void resetDrivePose(Pose2d pose) {
+        poseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);
+    }
+
     public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);
         visionPoseEstimator.resetPosition(getRawRotation2d(), getModulePositions(), pose);

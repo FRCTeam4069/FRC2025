@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.DrivetrainConstants;
+import frc.robot.constants.DrivetrainConstants.DrivetrainPIDConstants;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.DrivetrainPIDController;
 
@@ -28,8 +29,8 @@ public class PIDToPosition extends Command {
     private final SwerveDrivetrain drive;
     private final DrivetrainPIDController controller;
     private Pose2d setpoint;
-    private Alliance alliance;
     private boolean l4;
+    private boolean stopping;
     private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("target pose", Pose2d.struct).publish();
     private StructPublisher<Translation2d> vecPublisher = NetworkTableInstance.getDefault()
@@ -40,9 +41,22 @@ public class PIDToPosition extends Command {
     }
 
     public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean l4) {
+        this(drive, pose, true, l4);
+    }
+
+    public PIDToPosition(SwerveDrivetrain drive, boolean stopping, Pose2d pose) {
+        this(drive, pose, stopping, false);
+    }
+
+    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean stopping, boolean l4) {
+        this(drive, pose, DrivetrainConstants.autoPidToPositionConstants, stopping, l4);
+    }
+
+    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, DrivetrainPIDConstants constants, boolean stopping, boolean l4) {
         this.drive = drive;
-        this.controller = new DrivetrainPIDController(DrivetrainConstants.autoPidToPositionConstants);
+        this.controller = new DrivetrainPIDController(constants);
         this.setpoint = pose;
+        this.stopping = stopping;
         this.l4 = l4;
 
         addRequirements(drive);

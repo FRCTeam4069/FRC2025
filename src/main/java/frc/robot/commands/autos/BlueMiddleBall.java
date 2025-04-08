@@ -38,9 +38,9 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class BlueRightTwoCoral extends SequentialCommandGroup {
+public class BlueMiddleBall extends SequentialCommandGroup {
   /** Creates a new BlueRightTwoCoral. */
-  public BlueRightTwoCoral(SwerveDrivetrain drive, Elevator elevator, Arm arm, Manipulator manipulator, RobotCommands commands) {
+  public BlueMiddleBall(SwerveDrivetrain drive, Elevator elevator, Arm arm, Manipulator manipulator, RobotCommands commands) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(drive, elevator, arm, manipulator);

@@ -102,6 +102,28 @@ public class DrivetrainConstants {
 
     };
 
+    public static final Pose2d[] humanPlayerPoses = new Pose2d[]{
+        new Pose2d(1.25, 0.700, Rotation2d.fromDegrees(52.5)), // blue bottom
+        new Pose2d(1.518, 7.344, Rotation2d.fromDegrees(-52.5)), // blue top
+        new Pose2d(16.15, 0.81, Rotation2d.fromDegrees(127.5)), // red bottom
+        new Pose2d(16.28, 7.20, Rotation2d.fromDegrees(-127.5)), // red top
+    };
+
+    public static Pose2d getHumanPlayerPose(HumanPlayerStations station) {
+        switch (station) {
+            case BlueLeft:
+                return humanPlayerPoses[1];
+            case BlueRight:
+                return humanPlayerPoses[0];
+            case RedLeft:
+                return humanPlayerPoses[2];
+            case RedRight:
+                return humanPlayerPoses[3];
+            default:
+                return humanPlayerPoses[0];
+        }
+    }
+
     public static enum ReefPoses{
         TopLeft,
         MiddleLeft,
@@ -141,13 +163,13 @@ public class DrivetrainConstants {
         Pose2d result = new Pose2d();
 
         switch (reefPose) {
-            case TopLeft:
+            case BottomLeft:
                 result = array[0];
                 break;
             case MiddleLeft:
                 result = array[1];
                 break;
-            case BottomLeft:
+            case TopLeft:
                 result = array[2];
                 break;
             case TopRight:
@@ -235,13 +257,21 @@ public class DrivetrainConstants {
         new Tolerances(0.02, 0.20));
 
     public static volatile DrivetrainPIDConstants autoPidToPositionConstants = new DrivetrainPIDConstants(
-        new PIDCoefficients(6.0, 0.0, 0.02), 
+        new PIDCoefficients(4.0, 0.0, 0.01), 
         new PIDCoefficients(8.0, 0.0, 0.6), 
-        new Constraints(5.0, 3.0), 
+        new Constraints(5.0, 4.0), 
         new Constraints(10.0, 10.0), 
-        new Tolerances(0.01, 0.20), 
+        new Tolerances(0.02, 0.30), 
         new Tolerances(0.02, 0.20));
 
+    public static volatile DrivetrainPIDConstants autoCloseEnoughConstants = new DrivetrainPIDConstants(
+        new PIDCoefficients(6.0, 0.0, 0.02), 
+        new PIDCoefficients(8.0, 0.0, 0.6), 
+        new Constraints(5.0, 5.0), 
+        new Constraints(10.0, 10.0), 
+        new Tolerances(0.80, 6.0), 
+        new Tolerances(0.05, 1.00));
+    
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
 
     public record ModuleCoefficients(

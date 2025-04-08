@@ -21,6 +21,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanTopic;
@@ -320,6 +321,32 @@ public class Arm extends SubsystemBase {
             @Override
             public boolean isFinished() {
                 return atPosition();
+            }
+        };
+
+        command.addRequirements(this);
+
+        return command;
+    }
+
+    public Command autoHome() {
+        var command = new Command() {
+            @Override
+            public void initialize() {
+                resetControllers();
+                setPosition(ArmConstants.veryRotatePoint, getPlaceRoll());
+            }
+            @Override
+            public void execute() {
+                //setPosition(pitch, roll);
+            }
+            @Override
+            public void end(boolean interrupted) {
+                stop();
+            }
+            @Override
+            public boolean isFinished() {
+                return getPitch() > Rotation2d.fromDegrees(19.0).getRadians();
             }
         };
 
