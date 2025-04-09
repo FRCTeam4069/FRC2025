@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.autos.VelocityPoint;
 import frc.robot.constants.DrivetrainConstants;
+import frc.robot.constants.DrivetrainConstants.DrivetrainPIDConstants;
+import frc.robot.constants.DrivetrainConstants.Tolerances;
 import frc.robot.subsystems.swerve.SwerveDrivetrain;
 import frc.robot.util.DrivetrainPIDController;
 
@@ -47,8 +49,12 @@ public class PIDToPositionClamped extends Command {
     }
 
     public PIDToPositionClamped(SwerveDrivetrain drive, Pose2d pose, boolean l4, ArrayList<VelocityPoint> velocityTargets) {
+        this(drive, pose, l4, velocityTargets, DrivetrainConstants.autoPidToPositionConstants);
+    }
+
+    public PIDToPositionClamped(SwerveDrivetrain drive, Pose2d pose, boolean l4, ArrayList<VelocityPoint> velocityTargets, DrivetrainPIDConstants constants) {
         this.drive = drive;
-        this.controller = new DrivetrainPIDController(DrivetrainConstants.autoPidToPositionConstants);
+        this.controller = new DrivetrainPIDController(constants);
         this.setpoint = pose;
         this.l4 = l4;
         this.velocityTargets = velocityTargets;

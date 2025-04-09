@@ -7,8 +7,10 @@ import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -360,6 +362,30 @@ public class SwerveDrivetrain extends SubsystemBase {
     public void addVisionMeasurement(Pose2d pose, double timestamp) {
         visionPoseEstimator.addVisionMeasurement(pose, timestamp);
     }
+
+    public Command followPathCommand(String pathName) {
+        try{
+            PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+
+            return new FollowPathCommand(
+                path,
+                this::getPose, 
+                this::getRobotRelativeSpeeds, 
+                (speeds, feedforwards) -> drive(speeds), 
+                new PPHolonomicDriveController(DrivetrainConstants.translationPIDConstants, DrivetrainConstants.rotationPIDConstants), 
+                DrivetrainConstants.config, 
+                () -> {
+                    return false;
+                }, 
+                this
+            );
+
+        } catch (Exception e) {
+            DriverStation.reportError("Big oops: " + e.getMessage(), e.getStackTrace());
+            return Commands.none();
+        }
+    }
+
 
     @Override
     public void periodic() {

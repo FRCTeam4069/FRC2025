@@ -849,4 +849,25 @@ public class RobotCommands {
         );
     }
 
+    public Command placingToBallPickupL2() {
+        return Commands.sequence(
+            Commands.parallel(
+                manipulator.setIntakeOnce(-0.05),
+                elevator.pid(Elevator.armStateToDownPosition(ArmState.L4)),
+                Commands.sequence(
+                    Commands.waitSeconds(0.200),
+                    arm.pid(ArmConstants.l4ReturnPitch, arm.getPlaceRoll())
+                )
+            ),
+            Commands.parallel(
+                arm.setState(ArmState.BALL_L2_PICKUP),
+                manipulator.outtakeUntilRelease(-0.05),
+                elevator.pid(ElevatorConstants.ballL2),
+                arm.pid(ArmConstants.ballPitch, arm.getPlaceRoll())
+            ),
+            manipulator.setIntakeOnce(ManipulatorConstants.intakePower)
+
+        );
+    }
+
 }

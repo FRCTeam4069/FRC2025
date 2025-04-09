@@ -208,6 +208,9 @@ public class Manipulator extends SubsystemBase {
         };
     }
 
+    /**
+     * set intake to intakePower once
+     */ 
     public Command runIntake() {
         return runOnce(() -> setIntake(ManipulatorConstants.intakePower));
     }

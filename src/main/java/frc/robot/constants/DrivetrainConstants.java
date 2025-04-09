@@ -265,12 +265,12 @@ public class DrivetrainConstants {
         new Tolerances(0.02, 0.20));
 
     public static volatile DrivetrainPIDConstants autoCloseEnoughConstants = new DrivetrainPIDConstants(
-        new PIDCoefficients(6.0, 0.0, 0.02), 
+        new PIDCoefficients(4.0, 0.0, 0.01), 
         new PIDCoefficients(8.0, 0.0, 0.6), 
-        new Constraints(5.0, 5.0), 
+        new Constraints(5.0, 4.0), 
         new Constraints(10.0, 10.0), 
-        new Tolerances(0.80, 6.0), 
-        new Tolerances(0.05, 1.00));
+        new Tolerances(0.04, 0.40), 
+        new Tolerances(0.04, 0.30));
     
     public static final PIDCoefficients teleOpHeadingCoefficients = new PIDCoefficients(13.0, 0.0, 0.0);
 

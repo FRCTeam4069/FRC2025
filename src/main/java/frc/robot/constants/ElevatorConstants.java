@@ -108,7 +108,7 @@ public class ElevatorConstants {
 
     public static final double hp = 0.202; //0.205;
     public static final double hpOneCoral = 0.402;
-    public static final double ballL2 = 0.69;
+    public static final double ballL2 = 0.61;
     public static final double ballL3 = 1.04;
     public static final double ballRemoveL2 = 0.325;
     public static final double ballRemoveL3 = 0.69;

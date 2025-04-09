@@ -6,6 +6,7 @@ package frc.robot.commands.autos;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -19,6 +20,7 @@ import frc.robot.constants.ArmConstants;
 import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.ElevatorConstants;
 
+import static frc.robot.constants.DrivetrainConstants.autoCloseEnoughConstants;
 import static frc.robot.constants.DrivetrainConstants.getHumanPlayerPose;
 import static frc.robot.constants.DrivetrainConstants.getReefPose;
 
@@ -45,10 +47,11 @@ public class BlueMiddleBall extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(drive, elevator, arm, manipulator);
     
-    Pose2d placeFirst = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.BottomRight);
-    Pose2d humanPickup = getHumanPlayerPose(HumanPlayerStations.BlueRight);
-    Pose2d placeSecond = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.BottomLeft);
-    Pose2d placeThird = getReefPose(HumanPlayerStations.BlueLeft, ReefPoses.BottomLeft);
+    Pose2d placeFirst = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.MiddleRight);
+    Pose2d ballFrontFirst = new Pose2d(6.20, 4.02, Rotation2d.fromDegrees(180.0));
+    Pose2d ballPickupFirst = new Pose2d(5.91, 4.02, Rotation2d.fromDegrees(180.0));
+    Pose2d ballPickupSecond = new Pose2d(5.167, 5.239, Rotation2d.fromDegrees(-120.0));
+    Pose2d ballFrontSecond = new Pose2d(5.356, 5.525, Rotation2d.fromDegrees(-120.0));
 
     addCommands(
         new InstantCommand(() -> drive.resetDrivePose(drive.getPose())),
@@ -63,42 +66,60 @@ public class BlueMiddleBall extends SequentialCommandGroup {
                 commands.place().withTimeout(0.8)
             )
         ),
-        Commands.deadline(
-            commands.placingToHumanPlayer(),
+        Commands.parallel(
+            commands.placingToBallPickupL2(),
             Commands.sequence(
                 Commands.waitSeconds(0.2),
-                new PIDToPositionClamped(drive, humanPickup, PointFactory.createPointList(new VelocityPoint(1.7, 1.0), new VelocityPoint(1.2, 0.70), new VelocityPoint(1.1, 0.15), new VelocityPoint(0.5, 0.10), new VelocityPoint(0.17, 0.07)))
+                new PIDToPositionClamped(drive, ballFrontFirst, false, PointFactory.createPointList(new VelocityPoint(1.0, 1.0), new VelocityPoint(0.8, 0.7), new VelocityPoint(0.6, 0.5), new VelocityPoint(0.3, 0.4), new VelocityPoint(0.1, 0.30)))
+            )
+        ),
+        Commands.deadline(
+            new PIDToPositionClamped(drive, ballPickupFirst, false, PointFactory.createPointList(new VelocityPoint(1.0, 1.0), new VelocityPoint(0.8, 0.7), new VelocityPoint(0.6, 0.6), new VelocityPoint(0.3, 0.55), new VelocityPoint(0.1, 0.70))).withTimeout(1.0),
+            manipulator.runIntake()
+        ),
+        Commands.parallel(
+            drive.followPathCommand("blue middle ball"),
+            Commands.sequence(
+                Commands.waitSeconds(0.3),
+                commands.ballPlace()
+            )
+        ),
+        commands.ballLaunch(),
+        Commands.deadline(
+            drive.followPathCommand("blue middle ball back"),
+            Commands.sequence(
+                Commands.waitSeconds(0.1),
+                commands.home()
             )
         ),
         Commands.parallel(
-            new PIDToPositionClamped(drive, placeSecond, true, PointFactory.createPointList(new VelocityPoint(1.5, 1.0), new VelocityPoint(1.0, 0.70), new VelocityPoint(0.8, 0.6), new VelocityPoint(0.25, 0.20))),
             Commands.sequence(
-                Commands.waitSeconds(0.1),
-                commands.L4Auto(),
-                commands.place().withTimeout(0.8)
-            )
-        ),
-        Commands.deadline(
-            Commands.sequence(
-                commands.placingToHumanPlayer()
+                new PIDToPositionClamped(drive, ballFrontSecond, false, PointFactory.createPointList(new VelocityPoint(1.0, 1.0), new VelocityPoint(0.8, 0.7), new VelocityPoint(0.6, 0.5), new VelocityPoint(0.3, 0.5), new VelocityPoint(0.1, 0.40))),
+                new PIDToPositionClamped(drive, ballPickupSecond, false, PointFactory.createPointList(new VelocityPoint(1.0, 1.0), new VelocityPoint(0.8, 0.7), new VelocityPoint(0.6, 0.5), new VelocityPoint(0.3, 0.5), new VelocityPoint(0.1, 0.40))).withTimeout(1.0)
             ),
             Commands.sequence(
-                Commands.waitSeconds(0.2),
-                new PIDToPositionClamped(drive, humanPickup, PointFactory.createPointList(new VelocityPoint(1.6, 1.0), new VelocityPoint(1.0, 0.70), new VelocityPoint(0.9, 0.15), new VelocityPoint(0.3, 0.10), new VelocityPoint(0.17, 0.07)))
+                Commands.waitSeconds(0.5),
+                commands.ballPickupL3()
             )
         ),
         Commands.parallel(
-            new PIDToPositionClamped(drive, placeThird, true, PointFactory.createPointList(new VelocityPoint(1.5, 1.0), new VelocityPoint(1.0, 0.70), new VelocityPoint(0.8, 0.5), new VelocityPoint(0.55, 0.3), new VelocityPoint(0.1, 0.20))),
+            drive.followPathCommand("blue middle second ball"),
             Commands.sequence(
-                Commands.waitSeconds(0.1),
-                commands.L4Auto(),
-                commands.place().withTimeout(0.8)
+                Commands.waitSeconds(0.5),
+                commands.ballPlace()
             )
         ),
-        Commands.sequence(
-            commands.release()
+        commands.ballLaunch(),
+        Commands.parallel(
+            drive.followPathCommand("blue middle second ball back"),
+            Commands.sequence(
+                Commands.waitSeconds(0.1),
+                commands.home()
+            )
         )
+
     );
-  }
+
+    }
 
 }
