@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "blue right 4 piece p1"
+                  "pathName": null
                 }
               },
               {
@@ -88,7 +88,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "bottom auto p2"
+                              "pathName": null
                             }
                           },
                           {
@@ -117,7 +117,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "bottom auto p3"
+                        "pathName": null
                       }
                     },
                     {
@@ -197,7 +197,7 @@
                           {
                             "type": "path",
                             "data": {
-                              "pathName": "bottom auto p4"
+                              "pathName": null
                             }
                           },
                           {
@@ -226,7 +226,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "bottom auto p5"
+                        "pathName": null
                       }
                     },
                     {
