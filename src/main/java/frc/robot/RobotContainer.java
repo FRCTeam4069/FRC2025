@@ -36,8 +36,12 @@ import frc.robot.commands.DriveToReef;
 import frc.robot.commands.FieldCentricDrive;
 import frc.robot.commands.PIDToPosition;
 import frc.robot.commands.PIDToPositionClamped;
+import frc.robot.commands.autos.BlueLeftTwoCoral;
 import frc.robot.commands.autos.BlueMiddleBall;
 import frc.robot.commands.autos.BlueRightTwoCoral;
+import frc.robot.commands.autos.RedLeftTwoCoral;
+import frc.robot.commands.autos.RedMiddleBall;
+import frc.robot.commands.autos.RedRightTwoCoral;
 import frc.robot.commands.autos.PointFactory;
 import frc.robot.commands.autos.VelocityPoint;
 import frc.robot.constants.ArmConstants;
@@ -86,8 +90,16 @@ public class RobotContainer {
         // addSysIdCommands()
 
         autoChooser.addOption("blue right two coral", new BlueRightTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("blue left two coral", new BlueLeftTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("red left two coral", new RedLeftTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("red right two coral", new RedRightTwoCoral(drive, elevator, arm, manipulator, commands));
         autoChooser.addOption("blue middle ball", new BlueMiddleBall(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("red middle ball", new RedMiddleBall(drive, elevator, arm, manipulator, commands));
         autoChooser.addOption("test", new PIDToPositionClamped(drive, new Pose2d(5.0, 1.37, Rotation2d.fromDegrees(135.0)), PointFactory.createPointList(new VelocityPoint(1.0, 0.97), new VelocityPoint(0.15, 0.10), new VelocityPoint(0.1, 0.075))));
+        autoChooser.addOption("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0)), false)); //right 
+
+
+
 
         autoChooser.addOption("align", drive.alignForward());
 
