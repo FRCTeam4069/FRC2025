@@ -89,17 +89,13 @@ public class RobotContainer {
 
         // addSysIdCommands()
 
-        autoChooser.addOption("blue right two coral", new BlueRightTwoCoral(drive, elevator, arm, manipulator, commands));
-        autoChooser.addOption("blue left two coral", new BlueLeftTwoCoral(drive, elevator, arm, manipulator, commands));
-        autoChooser.addOption("red left two coral", new RedLeftTwoCoral(drive, elevator, arm, manipulator, commands));
-        autoChooser.addOption("red right two coral", new RedRightTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("NEW blue right two coral", new BlueRightTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("NEW blue left two coral", new BlueLeftTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("NEW red left two coral", new RedLeftTwoCoral(drive, elevator, arm, manipulator, commands));
+        autoChooser.addOption("NEW red right two coral", new RedRightTwoCoral(drive, elevator, arm, manipulator, commands));
         autoChooser.addOption("blue middle ball", new BlueMiddleBall(drive, elevator, arm, manipulator, commands));
         autoChooser.addOption("red middle ball", new RedMiddleBall(drive, elevator, arm, manipulator, commands));
-        autoChooser.addOption("test", new PIDToPositionClamped(drive, new Pose2d(5.0, 1.37, Rotation2d.fromDegrees(135.0)), PointFactory.createPointList(new VelocityPoint(1.0, 0.97), new VelocityPoint(0.15, 0.10), new VelocityPoint(0.1, 0.075))));
         autoChooser.addOption("drive bottom p1", new PIDToPosition(drive, new Pose2d(5.05, 2.69, Rotation2d.fromDegrees(120.0)), false)); //right 
-
-
-
 
         autoChooser.addOption("align", drive.alignForward());
 
