@@ -40,15 +40,15 @@ import frc.robot.subsystems.swerve.SwerveDrivetrain;
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
-public class RedMiddleBall extends SequentialCommandGroup {
+public class RedMiddleBallFix extends SequentialCommandGroup {
   /** Creates a new BlueRightTwoCoral. */
-  public RedMiddleBall(SwerveDrivetrain drive, Elevator elevator, Arm arm, Manipulator manipulator, RobotCommands commands) {
+  public RedMiddleBallFix(SwerveDrivetrain drive, Elevator elevator, Arm arm, Manipulator manipulator, RobotCommands commands) {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(drive, elevator, arm, manipulator);
     
     Pose2d placeFirst = getReefPose(HumanPlayerStations.RedRight, ReefPoses.MiddleLeft);
-    Pose2d ballFrontFirst = new Pose2d(11.348, 4.032, Rotation2d.fromDegrees(180.0));//
+    Pose2d ballFrontFirst = new Pose2d(11.348, 4.032, Rotation2d.fromDegrees(0.0));//
     Pose2d ballPickupFirst = new Pose2d(11.638, 4.032, Rotation2d.fromDegrees(0.0));//
     Pose2d ballPickupSecond = new Pose2d(12.381, 2.813, Rotation2d.fromDegrees(60.0));//
     Pose2d ballFrontSecond = new Pose2d(12.192, 2.527, Rotation2d.fromDegrees(60.0));//
