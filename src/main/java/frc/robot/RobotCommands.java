@@ -2,11 +2,15 @@ package frc.robot;
 
 import java.util.Map;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.commands.PIDToPosition;
 import frc.robot.constants.ArmConstants;
+import frc.robot.constants.DrivetrainConstants;
 import frc.robot.constants.ElevatorConstants;
 import frc.robot.constants.ManipulatorConstants;
 import frc.robot.subsystems.Arm;
@@ -257,6 +261,24 @@ public class RobotCommands {
             ), () -> arm.getState());
     }
 
+    public Command bargeScore() {
+        return Commands.select(
+            Map.ofEntries(
+                Map.entry(ArmState.L1, new InstantCommand()),
+                Map.entry(ArmState.L2, new InstantCommand()),
+                Map.entry(ArmState.L3, new InstantCommand()),
+                Map.entry(ArmState.L4, new InstantCommand()),
+                Map.entry(ArmState.HOME, scoreIntoBarge()),
+                Map.entry(ArmState.HP, new InstantCommand()),
+                Map.entry(ArmState.BALL_L2_PICKUP, scoreIntoBarge()),
+                Map.entry(ArmState.BALL_L3_PICKUP, scoreIntoBarge()),
+                Map.entry(ArmState.BALL_L2_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_L3_REMOVE, new InstantCommand()),
+                Map.entry(ArmState.BALL_PLACE, scoreIntoBarge()),
+                Map.entry(ArmState.INTAKE_GROUND, scoreIntoBarge())
+            ), () -> arm.getState());
+    }
+
     public Command climbStart() {
         return Commands.select(
             Map.ofEntries(
@@ -382,6 +404,20 @@ public class RobotCommands {
             arm.setState(ArmState.BALL_L3_PICKUP)
         );
     }
+/* 
+    public Command scoreIntoBarge() {
+        return Commands.sequence(
+            new PIDToPosition(drive, new Pose2d(0.0, 0.0, Rotation2d.fromRadians(0)), false, false, true),
+            Commands.waitSeconds(0.4),
+            ballPlaceFromHome(),
+            Commands.waitSeconds(0.3),
+            ballLaunch(),
+            new PIDToPosition(drive, new Pose2d(0.0, 0.0, Rotation2d.fromRadians(0)), false, false, false, true),
+            Commands.waitSeconds(0.3),
+            homeFromPlace()
+        );
+    }
+    */
 
     public Command ballRemoveL2FromHome() {
         return Commands.parallel(

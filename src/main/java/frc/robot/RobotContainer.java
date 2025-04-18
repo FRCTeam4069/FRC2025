@@ -123,6 +123,7 @@ public class RobotContainer {
         controller0.leftTrigger().onTrue(new DriveToReef(drive, true, () -> true)).onFalse(drive.stopOnceCommand());
         controller0.rightTrigger().onTrue(new DriveToReef(drive, false, () -> true)).onFalse(drive.stopOnceCommand());
         controller0.a().onTrue(new DriveToClimb(drive)).onFalse(drive.stopOnceCommand());
+        controller0.x().onTrue(commands.bargeScore()).onFalse(Commands.sequence(drive.stopOnceCommand()));
 
         controller0.povLeft().onTrue(commands.ballRemoveL2());
         controller0.povRight().onTrue(commands.ballRemoveL3());

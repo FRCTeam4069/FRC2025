@@ -31,6 +31,10 @@ public class PIDToPosition extends Command {
     private Pose2d setpoint;
     private boolean l4;
     private boolean stopping;
+    private boolean scoreBarge;
+    private boolean backupFromBarge;
+
+    private Alliance alliance;
     private StructPublisher<Pose2d> posePublisher = NetworkTableInstance.getDefault()
         .getStructTopic("target pose", Pose2d.struct).publish();
     private StructPublisher<Translation2d> vecPublisher = NetworkTableInstance.getDefault()
@@ -49,15 +53,25 @@ public class PIDToPosition extends Command {
     }
 
     public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean stopping, boolean l4) {
-        this(drive, pose, DrivetrainConstants.autoPidToPositionConstants, stopping, l4);
+        this(drive, pose, DrivetrainConstants.autoPidToPositionConstants, stopping, l4, false, false);
     }
 
-    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, DrivetrainPIDConstants constants, boolean stopping, boolean l4) {
+    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean l4, boolean stopping, boolean scoreBarge) {
+        this(drive, pose, DrivetrainConstants.autoPidToPositionConstants, stopping, l4, scoreBarge, false);
+    }
+
+    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, boolean l4, boolean stopping, boolean scoreBarge, boolean backupFromBarge) {
+        this(drive, pose, DrivetrainConstants.autoPidToPositionConstants, stopping, l4, scoreBarge, backupFromBarge);
+    }
+
+    public PIDToPosition(SwerveDrivetrain drive, Pose2d pose, DrivetrainPIDConstants constants, boolean stopping, boolean l4, boolean scoreBarge, boolean backupFromBarge) {
         this.drive = drive;
         this.controller = new DrivetrainPIDController(constants);
         this.setpoint = pose;
         this.stopping = stopping;
         this.l4 = l4;
+        this.scoreBarge = scoreBarge;
+        this.backupFromBarge = backupFromBarge;
 
         addRequirements(drive);
     }
@@ -77,6 +91,38 @@ public class PIDToPosition extends Command {
     public void initialize() {
         if (l4) {
             setpoint = backAway(setpoint, -7.5);
+        }
+        if(scoreBarge) {
+            if (DriverStation.getAlliance().isPresent()) {
+                alliance = DriverStation.getAlliance().get();
+            } else {
+                alliance = Alliance.Blue;
+            }
+
+            double currentY = drive.getPose().getY();
+
+            if(alliance == Alliance.Red) {
+                setpoint = new Pose2d(9.885, currentY, Rotation2d.fromDegrees(-177.481));
+            }
+            else {
+                setpoint = new Pose2d(7.663, currentY, Rotation2d.fromDegrees(2.519));
+            }
+        }
+        if(backupFromBarge) {
+            if (DriverStation.getAlliance().isPresent()) {
+                alliance = DriverStation.getAlliance().get();
+            } else {
+                alliance = Alliance.Blue;
+            }
+
+            double currentY = drive.getPose().getY();
+
+            if(alliance == Alliance.Red) {
+                setpoint = new Pose2d(10.185, currentY, Rotation2d.fromDegrees(-177.481));
+            }
+            else {
+                setpoint = new Pose2d(7.363, currentY, Rotation2d.fromDegrees(2.519));
+            }
         }
         posePublisher.set(setpoint);
 
