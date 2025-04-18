@@ -48,7 +48,7 @@ public class BlueRightTwoCoral extends SequentialCommandGroup {
     Pose2d placeFirst = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.BottomRight);
     Pose2d humanPickup = getHumanPlayerPose(HumanPlayerStations.BlueRight);
     Pose2d placeSecond = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.BottomLeft);
-    Pose2d placeThird = getReefPose(HumanPlayerStations.BlueRight, ReefPoses.BottomLeft);
+    Pose2d placeThird = getReefPose(HumanPlayerStations.BlueLeft, ReefPoses.BottomLeft);
 
     addCommands(
         new InstantCommand(() -> drive.resetDrivePose(drive.getPose())),
