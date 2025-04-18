@@ -45,10 +45,10 @@ public class RedLeftTwoCoral extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addRequirements(drive, elevator, arm, manipulator);
     
-    Pose2d placeFirst = getReefPose(HumanPlayerStations.RedLeft, ReefPoses.TopRight);//
+    Pose2d placeFirst = getReefPose(HumanPlayerStations.RedLeft, ReefPoses.BottomLeft);//g
     Pose2d humanPickup = getHumanPlayerPose(HumanPlayerStations.RedLeft);//
-    Pose2d placeSecond = getReefPose(HumanPlayerStations.RedLeft, ReefPoses.TopLeft);//
-    Pose2d placeThird = getReefPose(HumanPlayerStations.RedRight, ReefPoses.TopLeft);//
+    Pose2d placeSecond = getReefPose(HumanPlayerStations.RedLeft, ReefPoses.BottomRight);//
+    Pose2d placeThird = getReefPose(HumanPlayerStations.RedRight, ReefPoses.BottomRight);//
 
     addCommands(
         new InstantCommand(() -> drive.resetDrivePose(drive.getPose())),

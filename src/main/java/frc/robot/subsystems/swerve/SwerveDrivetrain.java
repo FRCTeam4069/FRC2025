@@ -71,6 +71,14 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     public Pose2d startingPose = new Pose2d(7.210, 0.490, Rotation2d.fromDegrees(0.0));
 
+    private boolean isHigh;
+    public void setIsHigh(boolean isHigh) {
+        this.isHigh = isHigh;
+    }
+    public boolean getIsHigh() {
+        return isHigh;
+    }
+
     // private Field2d field = new Field2d();
 
     // private Vision vision = new Vision(() -> getVisionPose(), field);
