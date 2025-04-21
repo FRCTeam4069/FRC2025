@@ -69,7 +69,7 @@ public class DrivetrainConstants {
         new Pose2d(3.22, 4.21, Rotation2d.fromDegrees(0.0)), //g
         new Pose2d(4.02, 5.22, Rotation2d.fromDegrees(-60.0)), //g
         new Pose2d(4.96, 5.20, Rotation2d.fromDegrees(-120.0)), //g
-        new Pose2d(5.75, 4.20, Rotation2d.fromDegrees(180.0)), //g
+        new Pose2d(5.75, 4.17, Rotation2d.fromDegrees(180.0)), //g
         new Pose2d(5.25, 3.02, Rotation2d.fromDegrees(120.0)) //g
     };
 
@@ -96,17 +96,57 @@ public class DrivetrainConstants {
         new Pose2d(12.26, 3.03, Rotation2d.fromDegrees(60)),
         new Pose2d(11.78, 4.22, Rotation2d.fromDegrees(0)),
         new Pose2d(12.59, 5.22, Rotation2d.fromDegrees(-60)),
-        new Pose2d(13.53, 5.20, Rotation2d.fromDegrees(-120)),
+        new Pose2d(13.55, 5.19, Rotation2d.fromDegrees(-120)),
         new Pose2d(14.31, 4.19, Rotation2d.fromDegrees(180)),
         new Pose2d(13.82, 3.03, Rotation2d.fromDegrees(120))
 
     };
 
+    public static final Pose2d[] blueAlgaeSetupPosition = new Pose2d[]{
+        new Pose2d(5.321, 5.49, Rotation2d.fromDegrees(-120.0)), //far left
+        new Pose2d(3.618, 5.499, Rotation2d.fromDegrees(-60.0)), //close left
+        new Pose2d(2.790, 4.022, Rotation2d.fromDegrees(0.0)), //close middle
+        new Pose2d(3.630, 2.568, Rotation2d.fromDegrees(60.0)), //close right
+        new Pose2d(5.35, 2.57, Rotation2d.fromDegrees(120.0)), //far right
+        new Pose2d(6.18, 4.04, Rotation2d.fromDegrees(180.0)), //far middle
+
+    };
+
+    public static final Pose2d[] redAlgaeSetupPosition = new Pose2d[]{
+        new Pose2d(12.213, 2.566, Rotation2d.fromDegrees(60.0)), //Far left
+        new Pose2d(13.904, 2.566, Rotation2d.fromDegrees(120.0)), //Close left
+        new Pose2d(14.73, 4.04, Rotation2d.fromDegrees(180.0)), //close middle
+        new Pose2d(13.90, 5.50, Rotation2d.fromDegrees(-60.0)), //close right
+        new Pose2d(12.20, 5.50, Rotation2d.fromDegrees(-120.0)), //far right
+        new Pose2d(11.36, 4.04, Rotation2d.fromDegrees(0.0)), //far middle
+
+    };
+
+    public static final Pose2d[] blueAlgaePickupPosition = new Pose2d[]{
+        new Pose2d(5.175, 5.252, Rotation2d.fromDegrees(-120.0)), //far left
+        new Pose2d(3.772, 5.234, Rotation2d.fromDegrees(-60.0)), //close left
+        new Pose2d(3.09, 4.022, Rotation2d.fromDegrees(0.0)), //close middle
+        new Pose2d(3.78, 2.821, Rotation2d.fromDegrees(60.0)), //close right
+        new Pose2d(5.188, 2.819, Rotation2d.fromDegrees(120.0)), //far righ
+        new Pose2d(5.88, 4.024, Rotation2d.fromDegrees(180.0)), //far middle
+
+    };
+
+    public static final Pose2d[] redAlgaePickupPosition = new Pose2d[]{
+        new Pose2d(13.747, 5.244, Rotation2d.fromDegrees(-120.0)), //close right
+        new Pose2d(12.34, 5.233, Rotation2d.fromDegrees(-60.0)), //far right
+        new Pose2d(12.34, 4.022, Rotation2d.fromDegrees(0.0)), //far middle
+        new Pose2d(12.358, 2.819, Rotation2d.fromDegrees(60.0)), //far left
+        new Pose2d(13.75, 2.821, Rotation2d.fromDegrees(120.0)), //close left
+        new Pose2d(14.463, 4.031, Rotation2d.fromDegrees(180.0)), //close middle
+
+    };
+
     public static final Pose2d[] humanPlayerPoses = new Pose2d[]{
         new Pose2d(1.25, 0.700, Rotation2d.fromDegrees(52.5)), // blue bottom
-        new Pose2d(1.518, 7.344, Rotation2d.fromDegrees(-52.5)), // blue top
-        new Pose2d(16.15, 0.81, Rotation2d.fromDegrees(127.5)), // red bottom
-        new Pose2d(16.28, 7.20, Rotation2d.fromDegrees(-127.5)), // red top
+        new Pose2d(1.448, 7.447, Rotation2d.fromDegrees(-52.5)), // blue top
+        new Pose2d(16.249, 0.696, Rotation2d.fromDegrees(127.5)), // red bottom
+        new Pose2d(16.391, 7.239, Rotation2d.fromDegrees(-127.5)), // red top
     };
 
     public static Pose2d getHumanPlayerPose(HumanPlayerStations station) {
