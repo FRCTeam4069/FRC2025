@@ -144,9 +144,9 @@ public class DrivetrainConstants {
 
     public static final Pose2d[] humanPlayerPoses = new Pose2d[]{
         new Pose2d(1.25, 0.700, Rotation2d.fromDegrees(52.5)), // blue bottom
-        new Pose2d(1.518, 7.344, Rotation2d.fromDegrees(-52.5)), // blue top
-        new Pose2d(16.15, 0.81, Rotation2d.fromDegrees(127.5)), // red bottom
-        new Pose2d(16.28, 7.20, Rotation2d.fromDegrees(-127.5)), // red top
+        new Pose2d(1.448, 7.447, Rotation2d.fromDegrees(-52.5)), // blue top
+        new Pose2d(16.249, 0.696, Rotation2d.fromDegrees(127.5)), // red bottom
+        new Pose2d(16.391, 7.239, Rotation2d.fromDegrees(-127.5)), // red top
     };
 
     public static Pose2d getHumanPlayerPose(HumanPlayerStations station) {
